@@ -39,22 +39,38 @@ function playNote(freq, startTime, duration, gainVal = 0.25, type = "triangle") 
   osc.stop(startTime + duration + 0.05);
 }
 
-// 밝고 통통 튀는 짧은 멜로디 (C 메이저 펜타토닉)
+// 경쾌하고 통통 튀는 멜로디 (C 메이저, I–vi–IV–V 진행 / 영상통화 징글 느낌)
+// null = 쉼표. 빠른 스타카토로 바운스감을 줌.
+const STEP = 0.16; // 한 스텝 길이 (빠른 8분음표)
+// prettier-ignore
 const MELODY = [
-  523.25, 587.33, 659.25, 783.99, // C5 D5 E5 G5
-  659.25, 587.33, 523.25, 440.0,  // E5 D5 C5 A4
-  523.25, 659.25, 783.99, 880.0,  // C5 E5 G5 A5
-  783.99, 659.25, 587.33, 523.25, // G5 E5 D5 C5
+  783.99, null, 659.25, 783.99, 1046.50, null, 783.99, null, // C : G5 . E5 G5 C6 . G5 .
+  880.00, null, 659.25, 880.00, 1046.50, null, 880.00, null, // Am: A5 . E5 A5 C6 . A5 .
+  880.00, null, 698.46, 880.00, 1046.50, null, 880.00, null, // F : A5 . F5 A5 C6 . A5 .
+  987.77, null, 783.99, 1174.66, 987.77, null, 783.99, null, // G : B5 . G5 D6 B5 . G5 .
 ];
+// 베이스: 각 마디(8스텝)의 0,4 스텝에서 울림 (둥둥 바운스)
+// prettier-ignore
+const BASS = [
+  { step: 0,  freq: 130.81 }, { step: 4,  freq: 196.00 }, // C3 / G3
+  { step: 8,  freq: 110.00 }, { step: 12, freq: 164.81 }, // A2 / E3
+  { step: 16, freq: 87.31 },  { step: 20, freq: 130.81 }, // F2 / C3
+  { step: 24, freq: 98.00 },  { step: 28, freq: 146.83 }, // G2 / D3
+];
+const TOTAL_STEPS = 32;
 
 function scheduleMelodyLoop() {
   if (!ctx || muted) return;
-  const beat = 0.36; // 한 음 길이
   const now = ctx.currentTime + 0.05;
+  // 멜로디 (밝은 벨, 스타카토)
   MELODY.forEach((freq, i) => {
-    playNote(freq, now + i * beat, beat * 0.9, 0.18, "triangle");
+    if (freq) playNote(freq, now + i * STEP, STEP * 0.7, 0.16, "triangle");
   });
-  const loopMs = MELODY.length * beat * 1000;
+  // 베이스 (둥근 저음, 살짝 길게)
+  BASS.forEach(({ step, freq }) => {
+    playNote(freq, now + step * STEP, STEP * 2.2, 0.13, "sine");
+  });
+  const loopMs = TOTAL_STEPS * STEP * 1000;
   melodyTimer = setTimeout(scheduleMelodyLoop, loopMs);
 }
 
