@@ -13,12 +13,11 @@ const WASM_PATH =
 const MODEL_PATH =
   "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task";
 
-// 스티커 스타일 (깜짝 등장할 때마다 바뀜)
-const EAR_STYLES = ["rabbit", "cat", "bear"];
-const GLASSES_STYLES = ["🕶️", "👓", "🥽"];
-const HAT_STYLES = ["🎩", "👑", "🎉", "🧢"];
-const SHOW_MS = 6000; // 스티커 보이는 시간
-const HIDE_MS = 5000; // 스티커 사라져 있는 시간
+// 귀여운 동물 변신 세트 (등장할 때마다 바뀜)
+const ANIMAL_SETS = ["rabbit", "bear", "cat", "puppy", "panda"];
+const INITIAL_DELAY = 10000; // 전화 받고 처음 등장까지 (10초)
+const SHOW_MS = 5000; // 보이는 시간 (5초)
+const HIDE_MS = 5000; // 사라져 있는 시간 (5초)
 
 let faceLandmarker = null;
 let rafId = null;
@@ -107,11 +106,15 @@ export async function startMirror(videoEl, canvasEl, onReady) {
         }
       }
 
-      // 스티커 깜짝 등장/사라짐 사이클
-      const phase = (now - cycleStart) % (SHOW_MS + HIDE_MS);
-      const showing = phase < SHOW_MS;
+      // 스티커: 처음 10초는 안 나오고, 이후 5초 등장 / 5초 사라짐 반복
+      const elapsed = now - callStartAt;
+      let showing = false;
+      if (elapsed >= INITIAL_DELAY) {
+        const phase = (elapsed - INITIAL_DELAY) % (SHOW_MS + HIDE_MS);
+        showing = phase < SHOW_MS;
+      }
       if (showing && !wasShowing) {
-        styleIndex++; // 새로 등장할 때마다 다른 스타일
+        styleIndex++; // 새로 등장할 때마다 다른 동물
       }
       wasShowing = showing;
       if (showing && lastLandmarks && now - lastSeenAt < 600) {
@@ -226,7 +229,8 @@ function buildUI() {
   gameEl.appendChild(uiEl);
 }
 
-// ---------- 스티커 그리기 ----------
+// ---------- 귀여운 동물 변신 그리기 ----------
+// 둥글둥글한 귀 + 코 + 볼터치(+수염)로 부드럽게. (이모지 대신 직접 그림)
 function drawStickers(ctx, canvas, lm) {
   const W = canvas.width;
   const H = canvas.height;
@@ -234,36 +238,98 @@ function drawStickers(ctx, canvas, lm) {
 
   const leftEye = mid(toPx(lm[L.leftEyeOuter]), toPx(lm[L.leftEyeInner]));
   const rightEye = mid(toPx(lm[L.rightEyeOuter]), toPx(lm[L.rightEyeInner]));
-  const eyesCenter = mid(leftEye, rightEye);
   const eyeDist = dist(leftEye, rightEye);
 
   const top = toPx(lm[L.foreheadTop]);
   const chin = toPx(lm[L.chin]);
   const faceH = dist(top, chin);
   const faceW = dist(toPx(lm[L.leftCheek]), toPx(lm[L.rightCheek]));
+  const noseTip = toPx(lm[1]);
 
   const roll = Math.atan2(rightEye.y - leftEye.y, rightEye.x - leftEye.x);
   const up = { x: top.x - chin.x, y: top.y - chin.y };
   const upLen = Math.hypot(up.x, up.y) || 1;
   up.x /= upLen;
   up.y /= upLen;
+  // 얼굴 가로(오른쪽) 단위 벡터
+  const right = { x: rightEye.x - leftEye.x, y: rightEye.y - leftEye.y };
+  const rLen = Math.hypot(right.x, right.y) || 1;
+  right.x /= rLen;
+  right.y /= rLen;
 
+  const style = ANIMAL_SETS[styleIndex % ANIMAL_SETS.length];
   const earsAnchor = { x: top.x + up.x * faceH * 0.12, y: top.y + up.y * faceH * 0.12 };
-  const hatAnchor = { x: top.x + up.x * faceH * 0.42, y: top.y + up.y * faceH * 0.42 };
 
-  drawEars(ctx, earsAnchor, roll, faceW, EAR_STYLES[styleIndex % EAR_STYLES.length]);
-  drawEmoji(ctx, GLASSES_STYLES[styleIndex % GLASSES_STYLES.length], eyesCenter, roll, eyeDist * 2.6);
-  drawEmoji(ctx, HAT_STYLES[styleIndex % HAT_STYLES.length], hatAnchor, roll, faceW * 1.15);
+  drawEars(ctx, earsAnchor, roll, faceW, style);
+  drawCheeks(ctx, noseTip, right, up, faceW, faceH);
+  drawNose(ctx, noseTip, roll, faceW, style);
+  if (style === "cat" || style === "puppy") {
+    drawWhiskers(ctx, noseTip, right, up, faceW);
+  }
 }
 
-function drawEmoji(ctx, emoji, anchor, roll, size) {
+// 볼터치 (양 볼에 발그레한 분홍 원)
+function drawCheeks(ctx, nose, right, up, faceW, faceH) {
+  const off = faceW * 0.34;
+  const down = faceH * 0.04;
+  const r = faceW * 0.11;
+  [-1, 1].forEach((sign) => {
+    const cx = nose.x + right.x * off * sign - up.x * down;
+    const cy = nose.y + right.y * off * sign - up.y * down;
+    const g = ctx.createRadialGradient(cx, cy, 1, cx, cy, r);
+    g.addColorStop(0, "rgba(255,150,180,0.65)");
+    g.addColorStop(1, "rgba(255,150,180,0)");
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fill();
+  });
+}
+
+// 동물 코
+function drawNose(ctx, nose, roll, faceW, style) {
   ctx.save();
-  ctx.translate(anchor.x, anchor.y);
+  ctx.translate(nose.x, nose.y);
   ctx.rotate(roll);
-  ctx.font = `${size}px serif`;
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText(emoji, 0, 0);
+  if (style === "rabbit") {
+    ctx.fillStyle = "#ff8fb3";
+    roundedTriangle(ctx, faceW * 0.07);
+  } else if (style === "cat") {
+    ctx.fillStyle = "#ff8fb3";
+    roundedTriangle(ctx, faceW * 0.055);
+  } else if (style === "panda" || style === "bear") {
+    ctx.fillStyle = "#3a2b22";
+    ellipse(ctx, 0, 0, faceW * 0.09, faceW * 0.07);
+  } else {
+    // puppy
+    ctx.fillStyle = "#2b2b2b";
+    ellipse(ctx, 0, 0, faceW * 0.085, faceW * 0.065);
+  }
+  // 코 하이라이트
+  ctx.fillStyle = "rgba(255,255,255,0.5)";
+  circle(ctx, -faceW * 0.02, -faceW * 0.02, faceW * 0.02);
+  ctx.restore();
+}
+
+// 수염
+function drawWhiskers(ctx, nose, right, up, faceW) {
+  ctx.save();
+  ctx.strokeStyle = "rgba(255,255,255,0.85)";
+  ctx.lineWidth = Math.max(2, faceW * 0.012);
+  ctx.lineCap = "round";
+  const len = faceW * 0.4;
+  [-1, 1].forEach((sign) => {
+    [-0.06, 0, 0.06].forEach((tilt) => {
+      const sx = nose.x + right.x * faceW * 0.12 * sign;
+      const sy = nose.y + right.y * faceW * 0.12 * sign;
+      const dx = right.x * len * sign - up.x * len * tilt;
+      const dy = right.y * len * sign - up.y * len * tilt;
+      ctx.beginPath();
+      ctx.moveTo(sx, sy);
+      ctx.lineTo(sx + dx, sy + dy);
+      ctx.stroke();
+    });
+  });
   ctx.restore();
 }
 
@@ -277,15 +343,23 @@ function drawEars(ctx, anchor, roll, faceW, style) {
     ctx.translate(sign * offX, 0);
     if (style === "rabbit") {
       ctx.fillStyle = "#fff";
-      ellipse(ctx, 0, -faceW * 0.18, faceW * 0.1, faceW * 0.32);
-      ctx.fillStyle = "#ffb6d5";
-      ellipse(ctx, 0, -faceW * 0.18, faceW * 0.05, faceW * 0.22);
+      ellipse(ctx, 0, -faceW * 0.2, faceW * 0.1, faceW * 0.34);
+      ctx.fillStyle = "#ffc1da";
+      ellipse(ctx, 0, -faceW * 0.18, faceW * 0.05, faceW * 0.24);
     } else if (style === "cat") {
-      ctx.fillStyle = "#5a4a4a";
-      triangle(ctx, faceW * 0.22);
-      ctx.fillStyle = "#ffb6d5";
-      triangle(ctx, faceW * 0.12);
+      ctx.fillStyle = "#7a6a66";
+      roundedTriangleUp(ctx, faceW * 0.24);
+      ctx.fillStyle = "#ffc1da";
+      roundedTriangleUp(ctx, faceW * 0.13);
+    } else if (style === "puppy") {
+      // 둥글게 늘어진 귀
+      ctx.fillStyle = "#a9743f";
+      ellipse(ctx, 0, faceW * 0.04, faceW * 0.12, faceW * 0.22);
+    } else if (style === "panda") {
+      ctx.fillStyle = "#2b2b2b";
+      circle(ctx, 0, -faceW * 0.05, faceW * 0.15);
     } else {
+      // bear
       ctx.fillStyle = "#8a5a2b";
       circle(ctx, 0, -faceW * 0.05, faceW * 0.16);
       ctx.fillStyle = "#c98a4b";
@@ -308,11 +382,23 @@ function circle(ctx, x, y, r) {
   ctx.arc(x, y, r, 0, Math.PI * 2);
   ctx.fill();
 }
-function triangle(ctx, s) {
+// 모서리가 둥근 삼각형 (아래로 뾰족 - 코)
+function roundedTriangle(ctx, s) {
+  ctx.beginPath();
+  ctx.moveTo(-s, -s * 0.6);
+  ctx.quadraticCurveTo(0, -s * 0.9, s, -s * 0.6);
+  ctx.quadraticCurveTo(s * 0.6, s * 0.5, 0, s);
+  ctx.quadraticCurveTo(-s * 0.6, s * 0.5, -s, -s * 0.6);
+  ctx.closePath();
+  ctx.fill();
+}
+// 위로 뾰족한 둥근 삼각형 (고양이 귀)
+function roundedTriangleUp(ctx, s) {
   ctx.beginPath();
   ctx.moveTo(0, -s);
-  ctx.lineTo(-s * 0.8, s * 0.4);
-  ctx.lineTo(s * 0.8, s * 0.4);
+  ctx.quadraticCurveTo(s * 0.7, -s * 0.2, s * 0.8, s * 0.4);
+  ctx.quadraticCurveTo(0, s * 0.2, -s * 0.8, s * 0.4);
+  ctx.quadraticCurveTo(-s * 0.7, -s * 0.2, 0, -s);
   ctx.closePath();
   ctx.fill();
 }

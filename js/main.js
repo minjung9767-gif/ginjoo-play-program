@@ -25,8 +25,8 @@ const GAMES = {
   motion: {
     start: startMotion,
     stop: stopMotion,
-    loading: "물방울을 불러오고 있어요... 💧",
-    error: "앗, 물방울 놀이를 불러오지 못했어요. 🥲",
+    loading: "비눗방울을 불러오고 있어요... 🫧",
+    error: "앗, 비눗방울 놀이를 불러오지 못했어요. 🥲",
   },
   keypad: {
     start: startKeypad,

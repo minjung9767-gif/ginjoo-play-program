@@ -2,7 +2,7 @@
 // 누를 때마다 삑 + 반짝, 몇 번 누르면 "열렸다!" 축하.
 import { playKeyBeep, playDing, playDoorOpen } from "../audio.js";
 
-const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "🔔", "0", "✓"];
+const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "✕", "0", "✓"];
 const CELEBRATE = ["🎉", "🚪", "🎊", "🥳", "🎈", "⭐"];
 const AUTO_OPEN_AT = 6; // 숫자 이만큼 누르면 자동 축하
 
@@ -18,6 +18,19 @@ export async function startKeypad(videoEl, canvasEl, onReady) {
   wrapEl = document.createElement("div");
   wrapEl.className = "keypad-wrap";
 
+  // 위쪽: 딩동 초인종 버튼 (밖에서 누르는 느낌)
+  const bell = document.createElement("button");
+  bell.className = "doorbell-btn";
+  bell.innerHTML = '<span class="doorbell-icon">🛎️</span><span class="doorbell-label">딩동</span>';
+  bell.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    bell.classList.add("ringing");
+    setTimeout(() => bell.classList.remove("ringing"), 400);
+    playDing();
+    showDingDong();
+  });
+  wrapEl.appendChild(bell);
+
   displayEl = document.createElement("div");
   displayEl.className = "keypad-display";
   displayEl.textContent = "";
@@ -28,7 +41,7 @@ export async function startKeypad(videoEl, canvasEl, onReady) {
   KEYS.forEach((k) => {
     const b = document.createElement("button");
     b.className =
-      "key-btn" + (k === "🔔" ? " key-bell" : "") + (k === "✓" ? " key-enter" : "");
+      "key-btn" + (k === "✕" ? " key-clear" : "") + (k === "✓" ? " key-enter" : "");
     b.textContent = k;
     b.addEventListener("pointerdown", (e) => {
       e.preventDefault();
@@ -51,8 +64,9 @@ function onKey(k, btn) {
     clearDisplay();
     return;
   }
-  if (k === "🔔") {
-    playDing();
+  if (k === "✕") {
+    playKeyBeep(0);
+    clearDisplay();
     return;
   }
   // 숫자 버튼
@@ -63,6 +77,18 @@ function onKey(k, btn) {
     celebrate();
     clearDisplay();
   }
+}
+
+// "딩동!" 글자 잠깐 띄우기
+function showDingDong() {
+  const gameEl = document.getElementById("game");
+  if (!gameEl) return;
+  const el = document.createElement("div");
+  el.className = "dingdong-pop";
+  el.textContent = "딩동!";
+  gameEl.appendChild(el);
+  el.addEventListener("animationend", () => el.remove(), { once: true });
+  setTimeout(() => el.remove(), 1200);
 }
 
 function addDigit(d) {
@@ -111,7 +137,7 @@ export function stopKeypad() {
     wrapEl.remove();
     wrapEl = null;
   }
-  document.querySelectorAll(".keypad-celebrate, .sparkle").forEach((el) => el.remove());
+  document.querySelectorAll(".keypad-celebrate, .sparkle, .dingdong-pop").forEach((el) => el.remove());
   displayEl = null;
   pressCount = 0;
 }

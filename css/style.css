@@ -5,8 +5,8 @@ html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  font-family: "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
-  background: #fff0f6;
+  font-family: "Jua", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+  background: #d7eaff;
   -webkit-user-select: none;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
@@ -23,7 +23,8 @@ html, body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  position: relative;
+  position: fixed;
+  inset: 0;
   overflow: hidden;
   /* 꿈결 같은 파스텔 그라데이션 (하늘빛→민트→연보라), 위쪽 은은한 빛무리 */
   background:
@@ -99,9 +100,11 @@ html, body {
   position: relative;
   z-index: 1;
   display: flex;
-  gap: clamp(12px, 3vmin, 40px);
+  gap: clamp(18px, 4vmin, 56px);
   flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
+  width: 100%;
 }
 
 .play-btn {
@@ -110,11 +113,11 @@ html, body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1vmin;
-  width: clamp(140px, 24vmin, 260px);
-  height: clamp(140px, 24vmin, 260px);
+  gap: 1.5vmin;
+  width: clamp(180px, 30vmin, 340px);
+  height: clamp(180px, 30vmin, 340px);
   border: 1px solid rgba(255,255,255,0.6);
-  border-radius: 28px;
+  border-radius: 36px;
   /* 반투명 유리(글래스모피즘) */
   background: linear-gradient(160deg, rgba(255,255,255,0.55), rgba(255,255,255,0.25));
   backdrop-filter: blur(12px);
@@ -129,11 +132,11 @@ html, body {
   background: linear-gradient(160deg, rgba(255,255,255,0.7), rgba(255,255,255,0.35));
 }
 .play-emoji {
-  font-size: clamp(3rem, 11vmin, 7rem);
+  font-size: clamp(4rem, 14vmin, 9rem);
   line-height: 1;
   filter: drop-shadow(0 3px 6px rgba(0,0,0,0.15));
 }
-.play-label { font-size: clamp(1rem, 3.2vmin, 2rem); color: #0a5e7a; font-weight: 800; }
+.play-label { font-size: clamp(1.3rem, 4vmin, 2.6rem); color: #0a5e7a; font-weight: 400; }
 
 .play-btn.coming-soon { opacity: 0.55; cursor: default; }
 .badge {
@@ -358,10 +361,61 @@ html, body {
   box-shadow: 0 1px 0 #93a4b8, 0 2px 6px rgba(0,0,0,0.3);
   background: linear-gradient(160deg, #fff6a8, #ffd86b);
 }
-.key-btn.key-bell { color: #2b7a93; }
+.key-btn.key-clear { color: #c0566a; }
 .key-btn.key-enter { background: linear-gradient(160deg, #b7f5c8, #6fdd9a); color: #136b3a; }
 .key-btn.key-enter:active, .key-btn.key-enter.pressed {
   background: linear-gradient(160deg, #d6ffe2, #8fe9b0);
+}
+
+/* 딩동 초인종 버튼 (위쪽) */
+.doorbell-btn {
+  display: flex;
+  align-items: center;
+  gap: 2vmin;
+  padding: 1.6vmin 5vmin;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(160deg, #ffe9a8, #ffcf5e);
+  box-shadow: 0 6px 0 #d9a93e, 0 8px 18px rgba(0,0,0,0.3);
+  color: #6b4a12;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+.doorbell-btn:active, .doorbell-btn.ringing {
+  transform: translateY(5px);
+  box-shadow: 0 1px 0 #d9a93e, 0 3px 8px rgba(0,0,0,0.3);
+  background: linear-gradient(160deg, #fff4cf, #ffe08a);
+}
+.doorbell-icon { font-size: clamp(2rem, 8vmin, 4rem); line-height: 1; }
+.doorbell-btn.ringing .doorbell-icon { animation: bell-shake 0.4s ease; }
+.doorbell-label { font-size: clamp(1.4rem, 5vmin, 2.6rem); font-weight: 400; }
+@keyframes bell-shake {
+  0%,100% { transform: rotate(0); }
+  20% { transform: rotate(-18deg); }
+  40% { transform: rotate(14deg); }
+  60% { transform: rotate(-10deg); }
+  80% { transform: rotate(6deg); }
+}
+
+/* "딩동!" 글자 팝 */
+.dingdong-pop {
+  position: absolute;
+  top: 14%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9;
+  font-size: clamp(2.5rem, 12vmin, 7rem);
+  color: #ffcf5e;
+  text-shadow: 0 3px 0 #b9802a, 0 0 16px rgba(255,210,100,0.7);
+  pointer-events: none;
+  animation: dingdong-pop 1.1s ease-out forwards;
+}
+@keyframes dingdong-pop {
+  0% { transform: translateX(-50%) scale(0.4); opacity: 0; }
+  25% { transform: translateX(-50%) scale(1.15); opacity: 1; }
+  70% { opacity: 1; }
+  100% { transform: translateX(-50%) translateY(-30px) scale(1); opacity: 0; }
 }
 
 /* 문 열림 축하 */
@@ -398,8 +452,22 @@ html, body {
   align-items: center;
   justify-content: center;
   gap: 2.2vh;
-  background: linear-gradient(160deg, rgba(20,40,70,0.55), rgba(20,40,70,0.75));
+}
+/* 대기중: 살짝 어둑하게 (연락처 화면 느낌) */
+.call-standby {
+  background: linear-gradient(160deg, rgba(20,40,70,0.5), rgba(20,40,70,0.7));
   backdrop-filter: blur(3px);
+}
+/* 연결 중: 카메라가 환하게 보이도록 어둡게 처리하지 않음 */
+.call-connecting {
+  background: transparent;
+}
+.call-connecting .call-name,
+.call-connecting .call-status {
+  text-shadow: 0 2px 6px rgba(0,0,0,0.6), 0 0 2px rgba(0,0,0,0.5);
+}
+.call-connecting .call-avatar {
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5));
 }
 .call-avatar {
   font-size: clamp(5rem, 22vmin, 14rem);
