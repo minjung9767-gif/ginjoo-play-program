@@ -60,7 +60,7 @@ async function enterGame(game) {
   // 사용자 제스처(버튼 클릭) 시점에 오디오 활성화 (효과음용)
   try {
     await resumeAudio();
-    muteBtn.textContent = isMuted() ? "🔇" : "🔊";
+    muteBtn.classList.toggle("muted", isMuted());
   } catch (_) {}
 
   // 카메라가 필요한 놀이만 카메라 시작
@@ -104,7 +104,7 @@ document.querySelectorAll(".play-btn").forEach((btn) => {
 homeBtn.addEventListener("click", exitGame);
 muteBtn.addEventListener("click", () => {
   const muted = toggleMute();
-  muteBtn.textContent = muted ? "🔇" : "🔊";
+  muteBtn.classList.toggle("muted", muted);
 });
 
 // 시작 화면 표시

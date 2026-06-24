@@ -83,17 +83,28 @@ html, body {
 .home-title {
   position: relative;
   z-index: 1;
-  font-size: clamp(2rem, 7vmin, 5rem);
-  color: #0a5e7a;
-  text-shadow: 0 2px 8px rgba(255,255,255,0.6);
-  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2vmin;
+  font-weight: 400;
 }
-.home-sub {
-  position: relative;
-  z-index: 1;
-  font-size: clamp(1rem, 3vmin, 2rem);
-  color: #2b7a93;
-  margin-bottom: 2vh;
+.title-text {
+  font-family: "Gaegu", "Jua", sans-serif;
+  font-size: clamp(3.2rem, 15vmin, 10rem);
+  line-height: 1.05;
+  background: linear-gradient(180deg, #8fe0ff 0%, #5aa9f0 48%, #b08bf0 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-stroke: 7px #ffffff;
+  paint-order: stroke fill;
+  filter: drop-shadow(0 7px 10px rgba(40,110,150,0.32));
+}
+.title-emoji {
+  font-size: clamp(2.6rem, 12vmin, 8rem);
+  line-height: 1;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
 }
 
 .play-buttons {
@@ -136,6 +147,12 @@ html, body {
   line-height: 1;
   filter: drop-shadow(0 3px 6px rgba(0,0,0,0.15));
 }
+.play-emoji .icon-svg {
+  width: clamp(4.5rem, 15vmin, 10rem);
+  height: clamp(4.5rem, 15vmin, 10rem);
+  display: block;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.18));
+}
 .play-label { font-size: clamp(1.3rem, 4vmin, 2.6rem); color: #0a5e7a; font-weight: 400; }
 
 .play-btn.coming-soon { opacity: 0.55; cursor: default; }
@@ -172,20 +189,24 @@ html, body {
   gap: 10px;
 }
 .ctrl-btn {
-  width: clamp(40px, 7vmin, 60px);
-  height: clamp(40px, 7vmin, 60px);
+  width: clamp(44px, 7.5vmin, 64px);
+  height: clamp(44px, 7.5vmin, 64px);
   border: none;
   border-radius: 50%;
-  background: rgba(255,255,255,0.7);
-  font-size: clamp(1.1rem, 3vmin, 1.6rem);
+  background: #4aa6e6;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  backdrop-filter: blur(4px);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  box-shadow: 0 3px 10px rgba(0,0,0,0.25);
 }
 .ctrl-btn:active { transform: scale(0.92); }
+.ctrl-btn svg { width: 58%; height: 58%; display: block; }
+/* 음소거 아이콘 토글 */
+.ctrl-btn .ic-muted { display: none; }
+.ctrl-btn.muted { background: #9bb3c4; }
+.ctrl-btn.muted .ic-sound { display: none; }
+.ctrl-btn.muted .ic-muted { display: block; }
 
 /* ===== 상태/로딩 오버레이 ===== */
 .status-overlay {
@@ -317,12 +338,12 @@ html, body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2.5vmin;
-  padding: 3vmin;
+  gap: clamp(8px, 1.6vh, 18px);
+  padding: 2vh 3vw;
 }
 .keypad-display {
-  width: min(86vw, 60vmin);
-  min-height: 12vmin;
+  width: min(94vw, 620px);
+  min-height: 8vh;
   border-radius: 16px;
   background: #14202e;
   box-shadow: inset 0 0 18px rgba(0,0,0,0.6), 0 4px 12px rgba(0,0,0,0.3);
@@ -330,8 +351,8 @@ html, body {
   align-items: center;
   justify-content: center;
   gap: 1.5vmin;
-  padding: 2vmin;
-  font-size: clamp(2rem, 9vmin, 5rem);
+  padding: 1.2vh 2vmin;
+  font-size: clamp(1.8rem, 7vh, 4rem);
   font-weight: 900;
   color: #6ef0a0;
   letter-spacing: 0.12em;
@@ -340,17 +361,17 @@ html, body {
 .keypad-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: clamp(8px, 2vmin, 20px);
-  width: min(86vw, 60vmin);
+  gap: clamp(6px, 1.4vh, 16px);
+  width: min(94vw, 620px);
 }
 .key-btn {
-  aspect-ratio: 1 / 1;
+  height: clamp(44px, 12.5vh, 110px);
   border: none;
-  border-radius: 18px;
+  border-radius: 16px;
   background: linear-gradient(160deg, #eef3f8, #c7d3e0);
-  box-shadow: 0 6px 0 #93a4b8, 0 8px 16px rgba(0,0,0,0.3);
-  font-size: clamp(1.6rem, 7vmin, 4rem);
-  font-weight: 800;
+  box-shadow: 0 5px 0 #93a4b8, 0 7px 14px rgba(0,0,0,0.3);
+  font-size: clamp(1.4rem, 6vh, 3.2rem);
+  font-weight: 400;
   color: #2b3a55;
   cursor: pointer;
   user-select: none;
@@ -453,21 +474,14 @@ html, body {
   justify-content: center;
   gap: 2.2vh;
 }
-/* 대기중: 살짝 어둑하게 (연락처 화면 느낌) */
-.call-standby {
-  background: linear-gradient(160deg, rgba(20,40,70,0.5), rgba(20,40,70,0.7));
-  backdrop-filter: blur(3px);
+/* 대기중·연결중 모두: 카메라가 환하게 보이도록 어둡게 처리하지 않음 */
+.call-standby, .call-connecting { background: transparent; }
+.call-standby .call-name, .call-standby .call-status,
+.call-connecting .call-name, .call-connecting .call-status {
+  text-shadow: 0 2px 6px rgba(0,0,0,0.7), 0 0 2px rgba(0,0,0,0.6);
 }
-/* 연결 중: 카메라가 환하게 보이도록 어둡게 처리하지 않음 */
-.call-connecting {
-  background: transparent;
-}
-.call-connecting .call-name,
-.call-connecting .call-status {
-  text-shadow: 0 2px 6px rgba(0,0,0,0.6), 0 0 2px rgba(0,0,0,0.5);
-}
-.call-connecting .call-avatar {
-  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5));
+.call-standby .call-avatar, .call-connecting .call-avatar {
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.55));
 }
 .call-avatar {
   font-size: clamp(5rem, 22vmin, 14rem);
@@ -515,9 +529,10 @@ html, body {
   top: 0; left: 0; right: 0;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
+  gap: 14px;
   padding: 14px 18px;
-  padding-right: 130px; /* 우상단 홈/음소거 버튼 자리 비움 */
+  padding-right: 150px; /* 우상단 홈/음소거 버튼과 안 겹치게 */
   background: linear-gradient(to bottom, rgba(0,0,0,0.45), rgba(0,0,0,0));
   color: #fff;
 }

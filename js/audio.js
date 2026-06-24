@@ -140,12 +140,33 @@ export function playKeyBeep(n) {
   osc.stop(now + 0.2);
 }
 
-// 초인종 "딩-동"
+// 진짜 현관 초인종처럼 "딩~동~" (맑고 길게, 크게)
+function doorbellTone(freq, start, dur) {
+  const partials = [
+    { m: 1, g: 1.0 },
+    { m: 2, g: 0.5 },
+    { m: 3, g: 0.22 },
+    { m: 5.4, g: 0.08 },
+  ];
+  partials.forEach((p) => {
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.value = freq * p.m;
+    g.gain.setValueAtTime(0.0001, start);
+    g.gain.exponentialRampToValueAtTime(0.5 * p.g, start + 0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+    osc.connect(g);
+    g.connect(masterGain);
+    osc.start(start);
+    osc.stop(start + dur + 0.05);
+  });
+}
 export function playDing() {
   if (!ctx || muted) return;
   const now = ctx.currentTime;
-  playBell(659.25, now, 0.24);
-  playBell(523.25, now + 0.2, 0.24);
+  doorbellTone(659.25, now, 0.9);        // 딩 (E5)
+  doorbellTone(523.25, now + 0.5, 1.4);  // 동~ (C5, 더 길게)
 }
 
 // 문 열림 "띠리링~" (밝게 올라가는 차임)

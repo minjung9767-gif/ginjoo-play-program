@@ -15,7 +15,7 @@ const MODEL_PATH =
 
 // 귀여운 동물 변신 세트 (등장할 때마다 바뀜)
 const ANIMAL_SETS = ["rabbit", "bear", "cat", "puppy", "panda"];
-const INITIAL_DELAY = 10000; // 전화 받고 처음 등장까지 (10초)
+const INITIAL_DELAY = 5000; // 전화 받고 처음 등장까지 (5초)
 const SHOW_MS = 5000; // 보이는 시간 (5초)
 const HIDE_MS = 5000; // 사라져 있는 시간 (5초)
 
