@@ -1,32 +1,45 @@
-// 매직 거울: 얼굴에 동물 귀 + 안경 + 모자를 얹고, 화면 터치 시 반짝 효과
+// 영상통화 놀이: 셀카 영상통화 화면.
+// 대기중(콜라 음악) → [통화 연결] → 연결 중… → 통화중(내 얼굴 + 통화 UI + 스티커 깜짝 등장/사라짐)
+//                   ← [통화 종료(빨강)] 누르면 다시 대기중(음악 재생)
 import {
   FaceLandmarker,
   FilesetResolver,
 } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.20/vision_bundle.mjs";
 
-import { playSparkle } from "../audio.js";
+import { playCallMusic, stopCallMusic } from "../audio.js";
 
 const WASM_PATH =
   "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.20/wasm";
 const MODEL_PATH =
   "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task";
 
-// ----- 스타일 세트 (몇 초마다 자동 전환) -----
+// 스티커 스타일 (깜짝 등장할 때마다 바뀜)
 const EAR_STYLES = ["rabbit", "cat", "bear"];
 const GLASSES_STYLES = ["🕶️", "👓", "🥽"];
 const HAT_STYLES = ["🎩", "👑", "🎉", "🧢"];
-const STYLE_INTERVAL_MS = 4000;
+const SHOW_MS = 6000; // 스티커 보이는 시간
+const HIDE_MS = 5000; // 스티커 사라져 있는 시간
 
 let faceLandmarker = null;
 let rafId = null;
 let lastVideoTime = -1;
-let styleIndex = 0;
-let lastStyleSwitch = 0;
 let lastLandmarks = null;
 let lastSeenAt = 0;
-let tapHandler = null;
 
-// 주요 랜드마크 인덱스 (MediaPipe FaceLandmarker)
+let callState = "standby"; // standby | connecting | incall
+let connectTimer = null;
+let callStartAt = 0;
+let cycleStart = 0;
+let styleIndex = 0;
+let wasShowing = false;
+
+// DOM 참조
+let uiEl = null;
+let standbyEl = null;
+let connectingEl = null;
+let incallEl = null;
+let timerEl = null;
+
 const L = {
   leftEyeOuter: 33,
   leftEyeInner: 133,
@@ -48,7 +61,14 @@ function dist(a, b) {
 export async function startMirror(videoEl, canvasEl, onReady) {
   const ctx = canvasEl.getContext("2d");
 
-  // 모델 로딩
+  // 상태 초기화
+  lastVideoTime = -1;
+  lastLandmarks = null;
+  callState = "standby";
+  styleIndex = 0;
+  wasShowing = false;
+
+  // 모델 로딩 (통화중 스티커용)
   const fileset = await FilesetResolver.forVisionTasks(WASM_PATH);
   faceLandmarker = await FaceLandmarker.createFromOptions(fileset, {
     baseOptions: { modelAssetPath: MODEL_PATH, delegate: "GPU" },
@@ -56,7 +76,10 @@ export async function startMirror(videoEl, canvasEl, onReady) {
     numFaces: 1,
   });
 
-  // 캔버스 해상도를 영상 원본에 맞춤 (CSS object-fit:cover 가 동일하게 처리)
+  buildUI();
+  setState("standby");
+  playCallMusic();
+
   function syncCanvasSize() {
     if (videoEl.videoWidth && videoEl.videoHeight) {
       canvasEl.width = videoEl.videoWidth;
@@ -65,45 +88,38 @@ export async function startMirror(videoEl, canvasEl, onReady) {
   }
   syncCanvasSize();
 
-  // 화면 터치 → 반짝 효과 (DOM 파티클, 좌표 변환 불필요)
-  tapHandler = (e) => {
-    if (e.target.closest(".ctrl-btn")) return; // 부모용 버튼은 제외
-    const x = e.clientX ?? (e.touches && e.touches[0]?.clientX);
-    const y = e.clientY ?? (e.touches && e.touches[0]?.clientY);
-    if (x == null) return;
-    spawnSparkle(x, y);
-    playSparkle();
-  };
-  const gameEl = document.getElementById("game");
-  gameEl.addEventListener("pointerdown", tapHandler);
-
   let ready = false;
   function loop() {
     rafId = requestAnimationFrame(loop);
-    if (!faceLandmarker || !videoEl.videoWidth) return;
+    if (!videoEl.videoWidth) return;
     syncCanvasSize();
-
-    const now = performance.now();
-    if (videoEl.currentTime !== lastVideoTime) {
-      lastVideoTime = videoEl.currentTime;
-      const res = faceLandmarker.detectForVideo(videoEl, now);
-      if (res.faceLandmarks && res.faceLandmarks.length > 0) {
-        lastLandmarks = res.faceLandmarks[0];
-        lastSeenAt = now;
-      }
-    }
-
-    // 스타일 자동 전환
-    if (now - lastStyleSwitch > STYLE_INTERVAL_MS) {
-      styleIndex++;
-      lastStyleSwitch = now;
-    }
-
     ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
 
-    // 얼굴이 최근에 보였으면 스티커 그림 (잠깐 사라져도 유지 → 깜빡임 방지)
-    if (lastLandmarks && now - lastSeenAt < 500) {
-      drawStickers(ctx, canvasEl, lastLandmarks);
+    if (callState === "incall") {
+      const now = performance.now();
+      // 얼굴 추적
+      if (videoEl.currentTime !== lastVideoTime) {
+        lastVideoTime = videoEl.currentTime;
+        const res = faceLandmarker.detectForVideo(videoEl, now);
+        if (res.faceLandmarks && res.faceLandmarks.length > 0) {
+          lastLandmarks = res.faceLandmarks[0];
+          lastSeenAt = now;
+        }
+      }
+
+      // 스티커 깜짝 등장/사라짐 사이클
+      const phase = (now - cycleStart) % (SHOW_MS + HIDE_MS);
+      const showing = phase < SHOW_MS;
+      if (showing && !wasShowing) {
+        styleIndex++; // 새로 등장할 때마다 다른 스타일
+      }
+      wasShowing = showing;
+      if (showing && lastLandmarks && now - lastSeenAt < 600) {
+        drawStickers(ctx, canvasEl, lastLandmarks);
+      }
+
+      // 통화 시간 갱신
+      updateTimer();
     }
 
     if (!ready) {
@@ -114,6 +130,103 @@ export async function startMirror(videoEl, canvasEl, onReady) {
   loop();
 }
 
+// ---------- 통화 상태 ----------
+function setState(s) {
+  callState = s;
+  if (standbyEl) standbyEl.classList.toggle("hidden", s !== "standby");
+  if (connectingEl) connectingEl.classList.toggle("hidden", s !== "connecting");
+  if (incallEl) incallEl.classList.toggle("hidden", s !== "incall");
+}
+
+function onConnect() {
+  stopCallMusic();
+  setState("connecting");
+  if (connectTimer) clearTimeout(connectTimer);
+  connectTimer = setTimeout(() => {
+    callStartAt = performance.now();
+    cycleStart = performance.now();
+    wasShowing = false;
+    setState("incall");
+  }, 2200);
+}
+
+function onEnd() {
+  if (connectTimer) {
+    clearTimeout(connectTimer);
+    connectTimer = null;
+  }
+  lastLandmarks = null;
+  setState("standby");
+  playCallMusic();
+}
+
+function updateTimer() {
+  if (!timerEl) return;
+  const sec = Math.floor((performance.now() - callStartAt) / 1000);
+  const mm = String(Math.floor(sec / 60)).padStart(2, "0");
+  const ss = String(sec % 60).padStart(2, "0");
+  timerEl.textContent = `${mm}:${ss}`;
+}
+
+// ---------- UI ----------
+function buildUI() {
+  const gameEl = document.getElementById("game");
+  uiEl = document.createElement("div");
+  uiEl.className = "call-ui";
+
+  // 대기중
+  standbyEl = document.createElement("div");
+  standbyEl.className = "call-standby";
+  standbyEl.innerHTML =
+    '<div class="call-avatar">🧸</div>' +
+    '<div class="call-name">긴주</div>' +
+    '<div class="call-status">영상통화 대기중…</div>';
+  const connectBtn = document.createElement("button");
+  connectBtn.className = "call-btn call-connect";
+  connectBtn.innerHTML = "📞";
+  connectBtn.setAttribute("aria-label", "통화 연결");
+  connectBtn.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    onConnect();
+  });
+  standbyEl.appendChild(connectBtn);
+
+  // 연결 중
+  connectingEl = document.createElement("div");
+  connectingEl.className = "call-connecting hidden";
+  connectingEl.innerHTML =
+    '<div class="call-avatar pulse">🧸</div>' +
+    '<div class="call-name">긴주</div>' +
+    '<div class="call-status">연결 중<span class="dots"></span></div>';
+
+  // 통화중 (상단 정보 + 하단 종료 버튼)
+  incallEl = document.createElement("div");
+  incallEl.className = "call-incall hidden";
+  const topbar = document.createElement("div");
+  topbar.className = "call-topbar";
+  timerEl = document.createElement("span");
+  timerEl.className = "call-timer";
+  timerEl.textContent = "00:00";
+  topbar.innerHTML = '<span class="call-name-sm">긴주 💕</span>';
+  topbar.appendChild(timerEl);
+  const endBtn = document.createElement("button");
+  endBtn.className = "call-btn call-end";
+  endBtn.innerHTML = "📞";
+  endBtn.setAttribute("aria-label", "통화 종료");
+  endBtn.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    onEnd();
+  });
+  incallEl.appendChild(topbar);
+  incallEl.appendChild(endBtn);
+
+  uiEl.appendChild(standbyEl);
+  uiEl.appendChild(connectingEl);
+  uiEl.appendChild(incallEl);
+  gameEl.appendChild(uiEl);
+}
+
+// ---------- 스티커 그리기 ----------
 function drawStickers(ctx, canvas, lm) {
   const W = canvas.width;
   const H = canvas.height;
@@ -129,10 +242,7 @@ function drawStickers(ctx, canvas, lm) {
   const faceH = dist(top, chin);
   const faceW = dist(toPx(lm[L.leftCheek]), toPx(lm[L.rightCheek]));
 
-  // 머리 기울기
   const roll = Math.atan2(rightEye.y - leftEye.y, rightEye.x - leftEye.x);
-
-  // "위" 방향 (턱 → 이마)
   const up = { x: top.x - chin.x, y: top.y - chin.y };
   const upLen = Math.hypot(up.x, up.y) || 1;
   up.x /= upLen;
@@ -141,26 +251,9 @@ function drawStickers(ctx, canvas, lm) {
   const earsAnchor = { x: top.x + up.x * faceH * 0.12, y: top.y + up.y * faceH * 0.12 };
   const hatAnchor = { x: top.x + up.x * faceH * 0.42, y: top.y + up.y * faceH * 0.42 };
 
-  // ----- 귀 -----
   drawEars(ctx, earsAnchor, roll, faceW, EAR_STYLES[styleIndex % EAR_STYLES.length]);
-
-  // ----- 안경 -----
-  drawEmoji(
-    ctx,
-    GLASSES_STYLES[styleIndex % GLASSES_STYLES.length],
-    eyesCenter,
-    roll,
-    eyeDist * 2.6
-  );
-
-  // ----- 모자 -----
-  drawEmoji(
-    ctx,
-    HAT_STYLES[styleIndex % HAT_STYLES.length],
-    hatAnchor,
-    roll,
-    faceW * 1.15
-  );
+  drawEmoji(ctx, GLASSES_STYLES[styleIndex % GLASSES_STYLES.length], eyesCenter, roll, eyeDist * 2.6);
+  drawEmoji(ctx, HAT_STYLES[styleIndex % HAT_STYLES.length], hatAnchor, roll, faceW * 1.15);
 }
 
 function drawEmoji(ctx, emoji, anchor, roll, size) {
@@ -179,24 +272,20 @@ function drawEars(ctx, anchor, roll, faceW, style) {
   ctx.save();
   ctx.translate(anchor.x, anchor.y);
   ctx.rotate(roll);
-
   const drawOne = (sign) => {
     ctx.save();
     ctx.translate(sign * offX, 0);
     if (style === "rabbit") {
-      // 토끼: 길쭉한 흰 귀 + 분홍 안쪽
       ctx.fillStyle = "#fff";
       ellipse(ctx, 0, -faceW * 0.18, faceW * 0.1, faceW * 0.32);
       ctx.fillStyle = "#ffb6d5";
       ellipse(ctx, 0, -faceW * 0.18, faceW * 0.05, faceW * 0.22);
     } else if (style === "cat") {
-      // 고양이: 삼각형 귀
       ctx.fillStyle = "#5a4a4a";
       triangle(ctx, faceW * 0.22);
       ctx.fillStyle = "#ffb6d5";
       triangle(ctx, faceW * 0.12);
     } else {
-      // 곰: 둥근 귀
       ctx.fillStyle = "#8a5a2b";
       circle(ctx, 0, -faceW * 0.05, faceW * 0.16);
       ctx.fillStyle = "#c98a4b";
@@ -228,32 +317,24 @@ function triangle(ctx, s) {
   ctx.fill();
 }
 
-// ----- 터치 반짝 효과 (DOM) -----
-const SPARKLE_EMOJIS = ["⭐", "💖", "🫧", "✨", "🌟"];
-function spawnSparkle(x, y) {
-  const el = document.createElement("span");
-  el.className = "sparkle";
-  el.textContent =
-    SPARKLE_EMOJIS[Math.floor(Math.random() * SPARKLE_EMOJIS.length)];
-  el.style.left = `${x}px`;
-  el.style.top = `${y}px`;
-  document.body.appendChild(el);
-  el.addEventListener("animationend", () => el.remove());
-}
-
 export function stopMirror(videoEl, canvasEl) {
   if (rafId) {
     cancelAnimationFrame(rafId);
     rafId = null;
   }
-  if (tapHandler) {
-    const gameEl = document.getElementById("game");
-    gameEl.removeEventListener("pointerdown", tapHandler);
-    tapHandler = null;
+  if (connectTimer) {
+    clearTimeout(connectTimer);
+    connectTimer = null;
   }
+  stopCallMusic();
   if (faceLandmarker) {
     faceLandmarker.close();
     faceLandmarker = null;
+  }
+  if (uiEl) {
+    uiEl.remove();
+    uiEl = null;
+    standbyEl = connectingEl = incallEl = timerEl = null;
   }
   if (canvasEl) {
     const ctx = canvasEl.getContext("2d");
@@ -261,4 +342,5 @@ export function stopMirror(videoEl, canvasEl) {
   }
   lastLandmarks = null;
   lastVideoTime = -1;
+  callState = "standby";
 }

@@ -382,3 +382,81 @@ html, body {
   color: #fff;
   text-shadow: 0 3px 0 #ff8c1a, 0 0 18px rgba(255,200,80,0.7);
 }
+
+/* ===== 영상통화 ===== */
+.call-ui { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+.call-ui > .hidden { display: none; }
+
+/* 대기중 / 연결중 (전체 오버레이) */
+.call-standby, .call-connecting {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2.2vh;
+  background: linear-gradient(160deg, rgba(20,40,70,0.55), rgba(20,40,70,0.75));
+  backdrop-filter: blur(3px);
+}
+.call-avatar {
+  font-size: clamp(5rem, 22vmin, 14rem);
+  line-height: 1;
+  filter: drop-shadow(0 6px 14px rgba(0,0,0,0.4));
+}
+.call-avatar.pulse { animation: call-pulse 1s ease-in-out infinite; }
+@keyframes call-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.08); opacity: 0.85; }
+}
+.call-name { font-size: clamp(1.6rem, 6vmin, 3.4rem); font-weight: 800; color: #fff; }
+.call-status { font-size: clamp(1rem, 3.4vmin, 1.8rem); color: #cfe3f5; }
+.call-status .dots::after {
+  content: "";
+  animation: call-dots 1.2s steps(4, end) infinite;
+}
+@keyframes call-dots {
+  0% { content: ""; } 25% { content: "."; } 50% { content: ".."; } 75% { content: "..."; }
+}
+
+/* 통화 버튼 (둥근) */
+.call-btn {
+  pointer-events: auto;
+  width: clamp(70px, 16vmin, 120px);
+  height: clamp(70px, 16vmin, 120px);
+  border: none;
+  border-radius: 50%;
+  font-size: clamp(2rem, 8vmin, 4rem);
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+  margin-top: 2vh;
+  transition: transform 0.1s ease;
+}
+.call-btn:active { transform: scale(0.92); }
+.call-connect { background: #2ecc71; }
+.call-end { background: #e74c3c; transform: rotate(135deg); } /* 수화기 내려놓기 */
+.call-end:active { transform: rotate(135deg) scale(0.92); }
+
+/* 통화중 (상단 정보 + 하단 종료 버튼) */
+.call-incall { position: absolute; inset: 0; pointer-events: none; }
+.call-topbar {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  padding-right: 130px; /* 우상단 홈/음소거 버튼 자리 비움 */
+  background: linear-gradient(to bottom, rgba(0,0,0,0.45), rgba(0,0,0,0));
+  color: #fff;
+}
+.call-name-sm { font-size: clamp(1.1rem, 4vmin, 2rem); font-weight: 800; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+.call-timer { font-size: clamp(1rem, 3.4vmin, 1.6rem); font-variant-numeric: tabular-nums; color: #b8f5c8; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+.call-incall .call-end {
+  position: absolute;
+  bottom: 5vh;
+  left: 50%;
+  margin-left: calc(clamp(70px, 16vmin, 120px) / -2);
+  margin-top: 0;
+}

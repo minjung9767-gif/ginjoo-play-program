@@ -3,7 +3,7 @@ import { startCamera, stopCamera } from "./camera.js";
 import { startMirror, stopMirror } from "./games/mirror.js";
 import { startMotion, stopMotion } from "./games/motion.js";
 import { startKeypad, stopKeypad } from "./games/keypad.js";
-import { resumeAudio, startMelody, stopMelody, toggleMute, isMuted } from "./audio.js";
+import { resumeAudio, stopCallMusic, toggleMute, isMuted } from "./audio.js";
 
 const homeScreen = document.getElementById("home");
 const gameScreen = document.getElementById("game");
@@ -19,8 +19,8 @@ const GAMES = {
   mirror: {
     start: startMirror,
     stop: stopMirror,
-    loading: "마법 거울을 준비하고 있어요... ✨",
-    error: "앗, 마법 거울을 불러오지 못했어요. 인터넷 연결을 확인해 주세요. 🥲",
+    loading: "영상통화를 준비하고 있어요... 📞",
+    error: "앗, 영상통화를 불러오지 못했어요. 인터넷 연결을 확인해 주세요. 🥲",
   },
   motion: {
     start: startMotion,
@@ -57,10 +57,9 @@ async function enterGame(game) {
   showScreen(gameScreen);
   setStatus(def.needsCamera === false ? "준비하고 있어요..." : "카메라를 준비하고 있어요...", true);
 
-  // 사용자 제스처(버튼 클릭) 시점에 오디오 활성화
+  // 사용자 제스처(버튼 클릭) 시점에 오디오 활성화 (효과음용)
   try {
     await resumeAudio();
-    startMelody();
     muteBtn.textContent = isMuted() ? "🔇" : "🔊";
   } catch (_) {}
 
@@ -87,7 +86,7 @@ function exitGame() {
   const def = GAMES[currentGame];
   if (def) def.stop(video, canvas);
   stopCamera(video);
-  stopMelody();
+  stopCallMusic();
   currentGame = null;
   setStatus("", false);
   showScreen(homeScreen);
