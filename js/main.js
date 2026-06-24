@@ -2,7 +2,7 @@
 import { startCamera, stopCamera } from "./camera.js";
 import { startMirror, stopMirror } from "./games/mirror.js";
 import { startMotion, stopMotion } from "./games/motion.js";
-import { startPeekaboo, stopPeekaboo } from "./games/peekaboo.js";
+import { startKeypad, stopKeypad } from "./games/keypad.js";
 import { resumeAudio, startMelody, stopMelody, toggleMute, isMuted } from "./audio.js";
 
 const homeScreen = document.getElementById("home");
@@ -28,11 +28,12 @@ const GAMES = {
     loading: "물방울을 불러오고 있어요... 💧",
     error: "앗, 물방울 놀이를 불러오지 못했어요. 🥲",
   },
-  peekaboo: {
-    start: startPeekaboo,
-    stop: stopPeekaboo,
-    loading: "까꿍 놀이를 준비하고 있어요... 🐻",
-    error: "앗, 까꿍 놀이를 불러오지 못했어요. 인터넷 연결을 확인해 주세요. 🥲",
+  keypad: {
+    start: startKeypad,
+    stop: stopKeypad,
+    needsCamera: false,
+    loading: "",
+    error: "앗, 키패드를 불러오지 못했어요. 🥲",
   },
 };
 
@@ -54,7 +55,7 @@ async function enterGame(game) {
   currentGame = game;
 
   showScreen(gameScreen);
-  setStatus("카메라를 준비하고 있어요...", true);
+  setStatus(def.needsCamera === false ? "준비하고 있어요..." : "카메라를 준비하고 있어요...", true);
 
   // 사용자 제스처(버튼 클릭) 시점에 오디오 활성화
   try {
@@ -63,15 +64,18 @@ async function enterGame(game) {
     muteBtn.textContent = isMuted() ? "🔇" : "🔊";
   } catch (_) {}
 
-  try {
-    await startCamera(video);
-  } catch (err) {
-    setStatus("카메라를 사용할 수 없어요. 카메라 권한을 허용해 주세요. 🥲", true);
-    return;
+  // 카메라가 필요한 놀이만 카메라 시작
+  if (def.needsCamera !== false) {
+    try {
+      await startCamera(video);
+    } catch (err) {
+      setStatus("카메라를 사용할 수 없어요. 카메라 권한을 허용해 주세요. 🥲", true);
+      return;
+    }
   }
 
   try {
-    setStatus(def.loading, true);
+    if (def.loading) setStatus(def.loading, true);
     await def.start(video, canvas, () => setStatus("", false));
   } catch (err) {
     console.error(err);

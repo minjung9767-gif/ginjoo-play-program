@@ -23,17 +23,24 @@ html, body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2vh;
   position: relative;
   overflow: hidden;
-  /* 부드러운 하늘/아쿠아 그라데이션 */
-  background:
-    radial-gradient(120% 80% at 20% 10%, #eafaff 0%, rgba(234,250,255,0) 55%),
-    radial-gradient(120% 90% at 90% 100%, #bfe9ff 0%, rgba(191,233,255,0) 60%),
-    linear-gradient(160deg, #8fd6f2 0%, #a9e3f7 45%, #d6f2ff 100%);
+  /* 부드러운 하늘/아쿠아 그라데이션 (한 덩어리로) */
+  background: linear-gradient(165deg, #8fd6f2 0%, #a9e3f7 45%, #d6f2ff 100%);
   padding: 4vmin;
 }
 #home.active { display: flex; }
+
+/* 제목은 위쪽에 고정, 버튼은 화면 정중앙에 오도록 */
+.home-header {
+  position: absolute;
+  top: 7vh;
+  left: 0;
+  right: 0;
+  text-align: center;
+  z-index: 1;
+  pointer-events: none;
+}
 
 /* 떠다니는 물방울 (장식 레이어) */
 .home-bubbles {
@@ -293,4 +300,85 @@ html, body {
   color: #ff8c1a;
   box-shadow: 0 2px 8px rgba(0,0,0,0.18);
   backdrop-filter: blur(4px);
+}
+
+/* ===== 삑삑 키패드 ===== */
+#game.keypad-mode { background: linear-gradient(165deg, #2b3a55 0%, #3c5170 100%); }
+.keypad-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5vmin;
+  padding: 3vmin;
+}
+.keypad-display {
+  width: min(86vw, 60vmin);
+  min-height: 12vmin;
+  border-radius: 16px;
+  background: #14202e;
+  box-shadow: inset 0 0 18px rgba(0,0,0,0.6), 0 4px 12px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5vmin;
+  padding: 2vmin;
+  font-size: clamp(2rem, 9vmin, 5rem);
+  font-weight: 900;
+  color: #6ef0a0;
+  letter-spacing: 0.12em;
+  text-shadow: 0 0 10px rgba(110,240,160,0.8);
+}
+.keypad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(8px, 2vmin, 20px);
+  width: min(86vw, 60vmin);
+}
+.key-btn {
+  aspect-ratio: 1 / 1;
+  border: none;
+  border-radius: 18px;
+  background: linear-gradient(160deg, #eef3f8, #c7d3e0);
+  box-shadow: 0 6px 0 #93a4b8, 0 8px 16px rgba(0,0,0,0.3);
+  font-size: clamp(1.6rem, 7vmin, 4rem);
+  font-weight: 800;
+  color: #2b3a55;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.06s ease, box-shadow 0.06s ease, background 0.06s ease;
+}
+.key-btn:active, .key-btn.pressed {
+  transform: translateY(5px);
+  box-shadow: 0 1px 0 #93a4b8, 0 2px 6px rgba(0,0,0,0.3);
+  background: linear-gradient(160deg, #fff6a8, #ffd86b);
+}
+.key-btn.key-bell { color: #2b7a93; }
+.key-btn.key-enter { background: linear-gradient(160deg, #b7f5c8, #6fdd9a); color: #136b3a; }
+.key-btn.key-enter:active, .key-btn.key-enter.pressed {
+  background: linear-gradient(160deg, #d6ffe2, #8fe9b0);
+}
+
+/* 문 열림 축하 */
+.keypad-celebrate {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2vh;
+  pointer-events: none;
+  animation: peekaboo-life 2s ease-out forwards;
+}
+.keypad-celebrate .c-emoji { font-size: clamp(5rem, 30vmin, 20rem); line-height: 1; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.3)); }
+.keypad-celebrate .c-text {
+  font-size: clamp(2rem, 12vmin, 8rem);
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 3px 0 #ff8c1a, 0 0 18px rgba(255,200,80,0.7);
 }

@@ -146,6 +146,41 @@ export function playPeekaboo() {
   notes.forEach((f, i) => playBell(f, now + i * 0.09, 0.22));
 }
 
+// 키패드 버튼 누름 소리 (숫자마다 다른 음, 경쾌한 삑)
+const KEY_TONES = [330, 392, 440, 494, 523, 587, 659, 698, 784, 880];
+export function playKeyBeep(n) {
+  if (!ctx || muted) return;
+  const f = KEY_TONES[((n % 10) + 10) % 10];
+  const now = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  const g = ctx.createGain();
+  osc.type = "triangle";
+  osc.frequency.value = f;
+  g.gain.setValueAtTime(0.0001, now);
+  g.gain.exponentialRampToValueAtTime(0.26, now + 0.005);
+  g.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
+  osc.connect(g);
+  g.connect(masterGain);
+  osc.start(now);
+  osc.stop(now + 0.2);
+}
+
+// 초인종 "딩-동"
+export function playDing() {
+  if (!ctx || muted) return;
+  const now = ctx.currentTime;
+  playBell(659.25, now, 0.24);
+  playBell(523.25, now + 0.2, 0.24);
+}
+
+// 문 열림 "띠리링~" (밝게 올라가는 차임)
+export function playDoorOpen() {
+  if (!ctx || muted) return;
+  const now = ctx.currentTime;
+  const notes = [523.25, 659.25, 783.99, 1046.5, 1318.51];
+  notes.forEach((f, i) => playBell(f, now + i * 0.11, 0.24));
+}
+
 export function toggleMute() {
   muted = !muted;
   if (muted) {

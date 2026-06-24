@@ -1,7 +1,11 @@
 // 움직임 마법: 비눗방울이 사방에서 둥실 나타나고, 손이 닿으면 펑! 터짐.
 // 터뜨리기 = 화면 터치 + 카메라 앞 손 움직임 (둘 다).
-import { playPop } from "../audio.js";
+import { playPop, playPeekaboo } from "../audio.js";
 import { screenToCanvas } from "../coords.js";
+
+// 가끔 비눗방울 안에 동물이 빼꼼 → 잡으면 "까꿍!" (까꿍 놀이 흡수)
+const ANIMALS = ["🐻", "🐰", "🐱", "🐶", "🦁", "🐯", "🐼", "🐸", "🐵", "🐷", "🐮", "🐥", "🐨", "🐹"];
+const ANIMAL_CHANCE = 0.3; // 새 방울이 동물 방울일 확률 (동시에 하나만)
 
 const GRID_W = 80; // 움직임 감지용 저해상도 샘플 크기
 const GRID_H = 60;
@@ -71,21 +75,32 @@ export async function startMotion(videoEl, canvasEl, onReady) {
         r: b.r * 0.18, color: b.color, life: 0, maxLife: 22,
       });
     }
-    playPop();
+    if (b.animal) {
+      triggerPeekaboo(b.animal); // 동물 방울 → 까꿍!
+      playPeekaboo();
+    } else {
+      playPop();
+    }
   }
 
   function spawnBubble(W, H) {
     const r = H * (0.06 + Math.random() * 0.06);
+    // 동물 방울은 동시에 하나만
+    const hasAnimal = bubbles.some((b) => b.animal);
+    const animal = !hasAnimal && Math.random() < ANIMAL_CHANCE
+      ? ANIMALS[(Math.random() * ANIMALS.length) | 0]
+      : null;
     bubbles.push({
       x: r + Math.random() * (W - 2 * r),
       y: r + Math.random() * (H - 2 * r),
-      r,
+      r: animal ? r * 1.25 : r, // 동물 방울은 살짝 크게
       color: BUBBLE_COLORS[(Math.random() * BUBBLE_COLORS.length) | 0],
       vx: (Math.random() - 0.5) * W * 0.0015,
       vy: (Math.random() - 0.5) * H * 0.0015,
       phase: Math.random() * Math.PI * 2,
       age: 0,
       maxAge: 360 + Math.random() * 240, // 안 터지면 일정 시간 뒤 사라짐
+      animal,
     });
   }
 
@@ -200,7 +215,31 @@ function drawBubble(ctx, b, alpha) {
   ctx.beginPath();
   ctx.arc(b.x - b.r * 0.35, b.y - b.r * 0.35, b.r * 0.16, 0, Math.PI * 2);
   ctx.fill();
+  // 동물 방울이면 가운데에 동물 (캔버스가 미러라 좌우 되돌려 그림)
+  if (b.animal) {
+    ctx.globalAlpha = Math.max(0, alpha);
+    ctx.translate(b.x, b.y);
+    ctx.scale(-1, 1);
+    ctx.font = `${b.r * 1.1}px serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(b.animal, 0, 0);
+  }
   ctx.restore();
+}
+
+// 동물 방울을 잡으면 "까꿍!" + 동물 등장 (DOM 오버레이)
+function triggerPeekaboo(animal) {
+  const gameEl = document.getElementById("game");
+  if (!gameEl) return;
+  const el = document.createElement("div");
+  el.className = "peekaboo-reveal";
+  el.innerHTML =
+    '<div class="peekaboo-text">까꿍!</div>' +
+    `<div class="peekaboo-animal">${animal}</div>`;
+  gameEl.appendChild(el);
+  el.addEventListener("animationend", () => el.remove(), { once: true });
+  setTimeout(() => el.remove(), 2200);
 }
 
 export function stopMotion(videoEl, canvasEl) {
@@ -217,4 +256,5 @@ export function stopMotion(videoEl, canvasEl) {
     const ctx = canvasEl.getContext("2d");
     ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
   }
+  document.querySelectorAll(".peekaboo-reveal").forEach((el) => el.remove());
 }
