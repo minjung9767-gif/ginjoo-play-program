@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#ffd6e8" />
+  <title>아기 놀이터 🎈</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <!-- 시작 화면: 놀이 선택 -->
+  <section id="home" class="screen active">
+    <h1 class="home-title">아기 놀이터 🎈</h1>
+    <p class="home-sub">하고 싶은 놀이를 골라요</p>
+    <div class="play-buttons">
+      <button class="play-btn" data-game="mirror">
+        <span class="play-emoji">🪞</span>
+        <span class="play-label">매직 거울</span>
+      </button>
+      <button class="play-btn coming-soon" data-game="motion" disabled>
+        <span class="play-emoji">✨</span>
+        <span class="play-label">움직임 마법</span>
+        <span class="badge">준비 중</span>
+      </button>
+      <button class="play-btn coming-soon" data-game="peekaboo" disabled>
+        <span class="play-emoji">🐻</span>
+        <span class="play-label">까꿍 동물</span>
+        <span class="badge">준비 중</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- 게임 화면: 매직 거울 -->
+  <section id="game" class="screen">
+    <video id="camera" playsinline autoplay muted></video>
+    <canvas id="overlay"></canvas>
+
+    <!-- 부모용 컨트롤 (모서리, 작게) -->
+    <div class="controls">
+      <button id="muteBtn" class="ctrl-btn" title="소리 켜기/끄기">🔊</button>
+      <button id="homeBtn" class="ctrl-btn" title="홈으로">🏠</button>
+    </div>
+
+    <!-- 로딩 / 안내 오버레이 -->
+    <div id="status" class="status-overlay">
+      <div class="status-box">
+        <div class="status-emoji">📷</div>
+        <p id="statusText">카메라를 준비하고 있어요...</p>
+      </div>
+    </div>
+  </section>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
