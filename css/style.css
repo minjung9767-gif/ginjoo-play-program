@@ -155,3 +155,35 @@ html, body {
   60%  { transform: translate(-50%, -50%) scale(1.3) rotate(20deg); opacity: 1; }
   100% { transform: translate(-50%, -70%) scale(1.0) rotate(-10deg); opacity: 0; }
 }
+
+/* ===== 까꿍 동물 등장 ===== */
+.peekaboo-reveal {
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2vh;
+  pointer-events: none;
+  animation: peekaboo-life 1.8s ease-out forwards;
+}
+.peekaboo-text {
+  font-size: clamp(3rem, 16vmin, 12rem);
+  font-weight: 900;
+  color: #ff5fa2;
+  text-shadow: 3px 3px 0 #fff, -2px -2px 0 #fff;
+}
+.peekaboo-animal {
+  font-size: clamp(5rem, 30vmin, 22rem);
+  line-height: 1;
+  filter: drop-shadow(0 8px 16px rgba(0,0,0,0.3));
+}
+@keyframes peekaboo-life {
+  0%   { transform: scale(0.2); opacity: 0; }
+  15%  { transform: scale(1.15); opacity: 1; }
+  30%  { transform: scale(1.0); opacity: 1; }
+  80%  { transform: scale(1.0); opacity: 1; }
+  100% { transform: scale(1.05); opacity: 0; }
+}

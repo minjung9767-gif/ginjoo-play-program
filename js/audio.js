@@ -118,6 +118,34 @@ export function playSparkle() {
   notes.forEach((f, i) => playBell(f, now + i * 0.08, 0.2));
 }
 
+// 비눗방울 터질 때 "퐁" 소리 (짧고 통통)
+export function playPop() {
+  if (!ctx || muted) return;
+  const now = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  const g = ctx.createGain();
+  osc.type = "sine";
+  // 빠르게 떨어지는 피치 → "퐁" 느낌
+  const f0 = 700 + Math.random() * 300;
+  osc.frequency.setValueAtTime(f0, now);
+  osc.frequency.exponentialRampToValueAtTime(f0 * 0.4, now + 0.12);
+  g.gain.setValueAtTime(0.0001, now);
+  g.gain.exponentialRampToValueAtTime(0.22, now + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+  osc.connect(g);
+  g.connect(masterGain);
+  osc.start(now);
+  osc.stop(now + 0.2);
+}
+
+// 까꿍! 등장 소리 (밝게 올라가는 차임)
+export function playPeekaboo() {
+  if (!ctx || muted) return;
+  const now = ctx.currentTime;
+  const notes = [523.25, 659.25, 783.99, 1046.5]; // 도 미 솔 도↑
+  notes.forEach((f, i) => playBell(f, now + i * 0.09, 0.22));
+}
+
 export function toggleMute() {
   muted = !muted;
   if (muted) {
