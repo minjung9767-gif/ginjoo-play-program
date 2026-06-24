@@ -91,6 +91,9 @@ html, body {
   font-family: "Dongle", "Jua", sans-serif;
   font-size: clamp(4.5rem, 23vmin, 15rem);
   line-height: 0.9;
+  display: inline-block;
+  transform: scaleX(1.22); /* 가로로 더 두껍게/넓게 */
+  transform-origin: center;
   background: linear-gradient(180deg, #5ec1ff 0%, #4a8ee6 52%, #8a6ff0 100%);
   -webkit-background-clip: text;
   background-clip: text;
