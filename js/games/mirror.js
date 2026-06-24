@@ -176,7 +176,7 @@ function buildUI() {
   standbyEl.innerHTML = '<div class="call-toplabel">📞 긴주 · 영상통화 대기중</div>';
   const connectBtn = document.createElement("button");
   connectBtn.className = "call-btn call-connect";
-  connectBtn.innerHTML = "📞";
+  connectBtn.innerHTML = `<svg viewBox="0 0 24 24" class="call-icon" aria-hidden="true"><path fill="#fff" stroke="#fff" stroke-width="0.6" stroke-linejoin="round" d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>`;
   connectBtn.setAttribute("aria-label", "통화 연결");
   connectBtn.addEventListener("pointerdown", (e) => {
     e.preventDefault();
@@ -202,7 +202,7 @@ function buildUI() {
   topbar.appendChild(timerEl);
   const endBtn = document.createElement("button");
   endBtn.className = "call-btn call-end";
-  endBtn.innerHTML = "📞";
+  endBtn.innerHTML = `<svg viewBox="0 0 24 24" class="call-icon" aria-hidden="true"><path fill="#fff" stroke="#fff" stroke-width="0.6" stroke-linejoin="round" d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>`;
   endBtn.setAttribute("aria-label", "통화 종료");
   endBtn.addEventListener("pointerdown", (e) => {
     e.preventDefault();
