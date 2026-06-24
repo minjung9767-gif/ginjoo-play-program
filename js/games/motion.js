@@ -1,6 +1,7 @@
 // 움직임 마법: 비눗방울이 사방에서 둥실 나타나고, 손이 닿으면 펑! 터짐.
 // 터뜨리기 = 화면 터치 + 카메라 앞 손 움직임 (둘 다).
 import { playPop } from "../audio.js";
+import { screenToCanvas } from "../coords.js";
 
 const GRID_W = 80; // 움직임 감지용 저해상도 샘플 크기
 const GRID_H = 60;
@@ -200,25 +201,6 @@ function drawBubble(ctx, b, alpha) {
   ctx.arc(b.x - b.r * 0.35, b.y - b.r * 0.35, b.r * 0.16, 0, Math.PI * 2);
   ctx.fill();
   ctx.restore();
-}
-
-// 화면(미러된 CSS) 좌표 → 캔버스 내부(video 원본) 좌표
-// object-fit:cover 잘림 보정 + 좌우 미러 보정
-function screenToCanvas(clientX, clientY, canvasEl) {
-  const rect = canvasEl.getBoundingClientRect();
-  const W = canvasEl.width;
-  const H = canvasEl.height;
-  const scale = Math.max(rect.width / W, rect.height / H);
-  const dispW = W * scale;
-  const dispH = H * scale;
-  const offsetX = (rect.width - dispW) / 2;
-  const offsetY = (rect.height - dispH) / 2;
-  const localX = clientX - rect.left;
-  const localY = clientY - rect.top;
-  return {
-    x: (rect.width - localX - offsetX) / scale, // 미러 보정
-    y: (localY - offsetY) / scale,
-  };
 }
 
 export function stopMotion(videoEl, canvasEl) {

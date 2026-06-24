@@ -187,3 +187,54 @@ html, body {
   80%  { transform: scale(1.0); opacity: 1; }
   100% { transform: scale(1.05); opacity: 0; }
 }
+
+/* ===== 까꿍 빼꼼 동물 (잡기) ===== */
+.peek-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none; /* 잡기는 #game의 pointerdown으로 처리 */
+}
+.peek-animal {
+  position: fixed;
+  font-size: clamp(3.5rem, 18vmin, 11rem);
+  line-height: 1;
+  transform: translate(-50%, -50%) scale(0);
+  filter: drop-shadow(0 6px 12px rgba(0,0,0,0.3));
+  animation: peek-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+.peek-animal.caught {
+  animation: peek-caught 0.48s ease-out forwards;
+}
+.peek-animal.hiding {
+  animation: peek-hide 0.32s ease-in forwards;
+}
+@keyframes peek-in {
+  0%   { transform: translate(-50%, -50%) scale(0); }
+  70%  { transform: translate(-50%, -50%) scale(1.18); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+@keyframes peek-caught {
+  0%   { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+  40%  { transform: translate(-50%, -70%) scale(1.45) rotate(12deg); opacity: 1; }
+  100% { transform: translate(-50%, -90%) scale(0.2) rotate(-10deg); opacity: 0; }
+}
+@keyframes peek-hide {
+  0%   { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+}
+
+/* ===== 별 카운터 ===== */
+.star-bar {
+  position: absolute;
+  top: 12px; left: 12px;
+  z-index: 6;
+  background: rgba(255,255,255,0.75);
+  border-radius: 999px;
+  padding: 6px 16px;
+  font-size: clamp(1rem, 3.4vmin, 1.8rem);
+  font-weight: 800;
+  color: #ff8c1a;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+  backdrop-filter: blur(4px);
+}

@@ -43,10 +43,12 @@ function playNote(freq, startTime, duration, gainVal = 0.25, type = "triangle") 
 function playBell(freq, startTime, gainVal = 0.16) {
   const partials = [
     { mult: 1, g: 1.0 },
-    { mult: 2.0, g: 0.5 },   // 옥타브 배음 → 종 느낌
-    { mult: 3.01, g: 0.22 }, // 살짝 어긋난 배음 → 금속성 광택
+    { mult: 2.0, g: 0.55 },  // 옥타브 배음 → 종 느낌
+    { mult: 3.01, g: 0.3 },  // 살짝 어긋난 배음 → 금속성 광택
+    { mult: 4.0, g: 0.18 },  // 상위 배음 → 더 밝고 반짝이는 차임
+    { mult: 5.4, g: 0.1 },   // 고음 광택
   ];
-  const dur = 1.1;
+  const dur = 0.95;
   partials.forEach((p) => {
     const osc = ctx.createOscillator();
     const g = ctx.createGain();
@@ -64,7 +66,8 @@ function playBell(freq, startTime, gainVal = 0.16) {
 
 // 딩동댕 차임 멜로디 (C 메이저). 벨이 맑게 울리도록 한 박씩 띄움.
 // null = 쉼표. 각 마디 끝에 "딩-동-댕" 하강 차임을 배치.
-const STEP = 0.22; // 한 스텝 길이 (벨이 울릴 여유)
+const STEP = 0.19; // 한 스텝 길이 (살짝 빠르고 경쾌하게)
+const MEL_TRANSPOSE = 1.26; // 멜로디를 위로 살짝 올려 더 밝게 (~+4 반음)
 // prettier-ignore
 const MELODY = [
   523.25, null, 659.25, null, 783.99, null, 1046.50, null, // C : 도 미 솔 도↑ (딩동댕동 ↑)
@@ -87,7 +90,7 @@ function scheduleMelodyLoop() {
   const now = ctx.currentTime + 0.05;
   // 멜로디 (맑은 벨/차임)
   MELODY.forEach((freq, i) => {
-    if (freq) playBell(freq, now + i * STEP, 0.17);
+    if (freq) playBell(freq * MEL_TRANSPOSE, now + i * STEP, 0.17);
   });
   // 베이스 (둥근 저음, 은은하게)
   BASS.forEach(({ step, freq }) => {
