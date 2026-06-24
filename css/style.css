@@ -36,12 +36,10 @@ html, body {
 
 /* 제목은 위쪽에 고정, 버튼은 화면 정중앙에 오도록 */
 .home-header {
-  position: absolute;
-  top: 7vh;
-  left: 0;
-  right: 0;
-  text-align: center;
+  position: relative;
   z-index: 1;
+  text-align: center;
+  margin-bottom: clamp(24px, 6vh, 70px);
   pointer-events: none;
 }
 
@@ -90,16 +88,16 @@ html, body {
   font-weight: 400;
 }
 .title-text {
-  font-family: "Gaegu", "Jua", sans-serif;
-  font-size: clamp(3.2rem, 15vmin, 10rem);
-  line-height: 1.05;
-  background: linear-gradient(180deg, #8fe0ff 0%, #5aa9f0 48%, #b08bf0 100%);
+  font-family: "Dongle", "Jua", sans-serif;
+  font-size: clamp(4.5rem, 23vmin, 15rem);
+  line-height: 0.9;
+  background: linear-gradient(180deg, #5ec1ff 0%, #4a8ee6 52%, #8a6ff0 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  -webkit-text-stroke: 7px #ffffff;
+  -webkit-text-stroke: 3px #ffffff;
   paint-order: stroke fill;
-  filter: drop-shadow(0 7px 10px rgba(40,110,150,0.32));
+  filter: drop-shadow(0 6px 9px rgba(40,110,150,0.3));
 }
 .title-emoji {
   font-size: clamp(2.6rem, 12vmin, 8rem);
@@ -111,7 +109,7 @@ html, body {
   position: relative;
   z-index: 1;
   display: flex;
-  gap: clamp(18px, 4vmin, 56px);
+  gap: clamp(24px, 5.5vmin, 80px);
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
@@ -343,7 +341,8 @@ html, body {
 }
 .keypad-display {
   width: min(94vw, 620px);
-  min-height: 8vh;
+  height: clamp(64px, 12vh, 120px);
+  flex: none;
   border-radius: 16px;
   background: #14202e;
   box-shadow: inset 0 0 18px rgba(0,0,0,0.6), 0 4px 12px rgba(0,0,0,0.3);
@@ -495,9 +494,23 @@ html, body {
 }
 .call-name { font-size: clamp(1.6rem, 6vmin, 3.4rem); font-weight: 800; color: #fff; }
 .call-status { font-size: clamp(1rem, 3.4vmin, 1.8rem); color: #cfe3f5; }
-.call-status .dots::after {
+.dots::after {
   content: "";
   animation: call-dots 1.2s steps(4, end) infinite;
+}
+/* 대기/연결 상단 라벨 (얼굴 안 가리게 위쪽에 작게) */
+.call-toplabel {
+  position: absolute;
+  top: 6%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.5);
+  color: #fff;
+  font-size: clamp(1rem, 3.6vmin, 1.7rem);
+  white-space: nowrap;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.6);
 }
 @keyframes call-dots {
   0% { content: ""; } 25% { content: "."; } 50% { content: ".."; } 75% { content: "..."; }
@@ -519,6 +532,15 @@ html, body {
 }
 .call-btn:active { transform: scale(0.92); }
 .call-connect { background: #2ecc71; }
+/* 대기중 통화 연결 버튼은 아래쪽 가운데 (가운데 비워 얼굴 보이게) */
+.call-standby .call-connect {
+  position: absolute;
+  bottom: 7%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+}
+.call-standby .call-connect:active { transform: translateX(-50%) scale(0.92); }
 .call-end { background: #e74c3c; transform: rotate(135deg); } /* 수화기 내려놓기 */
 .call-end:active { transform: rotate(135deg) scale(0.92); }
 

@@ -16,8 +16,7 @@ const MODEL_PATH =
 // 귀여운 동물 변신 세트 (등장할 때마다 바뀜)
 const ANIMAL_SETS = ["rabbit", "bear", "cat", "puppy", "panda"];
 const INITIAL_DELAY = 5000; // 전화 받고 처음 등장까지 (5초)
-const SHOW_MS = 5000; // 보이는 시간 (5초)
-const HIDE_MS = 5000; // 사라져 있는 시간 (5초)
+const CHANGE_MS = 5000; // 이후 5초마다 다른 모양으로 변경 (사라지지 않음)
 
 let faceLandmarker = null;
 let rafId = null;
@@ -106,19 +105,13 @@ export async function startMirror(videoEl, canvasEl, onReady) {
         }
       }
 
-      // 스티커: 처음 10초는 안 나오고, 이후 5초 등장 / 5초 사라짐 반복
+      // 스티커: 처음 5초는 안 나오고, 이후 계속 떠 있으며 5초마다 모양만 바뀜
       const elapsed = now - callStartAt;
-      let showing = false;
       if (elapsed >= INITIAL_DELAY) {
-        const phase = (elapsed - INITIAL_DELAY) % (SHOW_MS + HIDE_MS);
-        showing = phase < SHOW_MS;
-      }
-      if (showing && !wasShowing) {
-        styleIndex++; // 새로 등장할 때마다 다른 동물
-      }
-      wasShowing = showing;
-      if (showing && lastLandmarks && now - lastSeenAt < 600) {
-        drawStickers(ctx, canvasEl, lastLandmarks);
+        styleIndex = Math.floor((elapsed - INITIAL_DELAY) / CHANGE_MS);
+        if (lastLandmarks && now - lastSeenAt < 600) {
+          drawStickers(ctx, canvasEl, lastLandmarks);
+        }
       }
 
       // 통화 시간 갱신
@@ -177,13 +170,10 @@ function buildUI() {
   uiEl = document.createElement("div");
   uiEl.className = "call-ui";
 
-  // 대기중
+  // 대기중 (위쪽 라벨 + 아래쪽 통화 연결 버튼, 가운데는 비워서 아기 얼굴이 보이게)
   standbyEl = document.createElement("div");
   standbyEl.className = "call-standby";
-  standbyEl.innerHTML =
-    '<div class="call-avatar">🧸</div>' +
-    '<div class="call-name">긴주</div>' +
-    '<div class="call-status">영상통화 대기중…</div>';
+  standbyEl.innerHTML = '<div class="call-toplabel">📞 긴주 · 영상통화 대기중</div>';
   const connectBtn = document.createElement("button");
   connectBtn.className = "call-btn call-connect";
   connectBtn.innerHTML = "📞";
@@ -194,13 +184,11 @@ function buildUI() {
   });
   standbyEl.appendChild(connectBtn);
 
-  // 연결 중
+  // 연결 중 (위쪽 라벨만, 가운데는 비움)
   connectingEl = document.createElement("div");
   connectingEl.className = "call-connecting hidden";
   connectingEl.innerHTML =
-    '<div class="call-avatar pulse">🧸</div>' +
-    '<div class="call-name">긴주</div>' +
-    '<div class="call-status">연결 중<span class="dots"></span></div>';
+    '<div class="call-toplabel">📞 긴주 · 연결 중<span class="dots"></span></div>';
 
   // 통화중 (상단 정보 + 하단 종료 버튼)
   incallEl = document.createElement("div");
