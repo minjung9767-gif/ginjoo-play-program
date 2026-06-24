@@ -25,8 +25,10 @@ html, body {
   justify-content: center;
   position: relative;
   overflow: hidden;
-  /* 부드러운 하늘/아쿠아 그라데이션 (한 덩어리로) */
-  background: linear-gradient(165deg, #8fd6f2 0%, #a9e3f7 45%, #d6f2ff 100%);
+  /* 꿈결 같은 파스텔 그라데이션 (하늘빛→민트→연보라), 위쪽 은은한 빛무리 */
+  background:
+    radial-gradient(140% 70% at 50% -10%, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 45%),
+    linear-gradient(165deg, #9fdcff 0%, #bfeaf5 35%, #d7eaff 65%, #efe3ff 100%);
   padding: 4vmin;
 }
 #home.active { display: flex; }
