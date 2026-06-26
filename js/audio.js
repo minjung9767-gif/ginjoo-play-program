@@ -3,6 +3,7 @@ let ctx = null;
 let masterGain = null;
 let melodyTimer = null;
 let muted = false;
+let audioUnlocked = false;
 
 function ensureCtx() {
   if (!ctx) {
@@ -17,9 +18,28 @@ function ensureCtx() {
 // 사용자 제스처 시점에 호출 (자동재생 정책 회피)
 export async function resumeAudio() {
   ensureCtx();
+  // iOS(16.4+): 합성음을 '재생(playback)' 채널로 보내 무음 스위치 영향을 안 받게
+  try {
+    if (navigator.audioSession) navigator.audioSession.type = "playback";
+  } catch (_) {}
   if (ctx.state === "suspended") {
     await ctx.resume();
   }
+  // iOS 오디오 잠금 해제: 제스처 시점에 아주 짧은 무음을 한 번 흘려보냄
+  if (!audioUnlocked) {
+    try {
+      const src = ctx.createBufferSource();
+      src.buffer = ctx.createBuffer(1, 1, 22050);
+      src.connect(masterGain);
+      src.start(0);
+      audioUnlocked = true;
+    } catch (_) {}
+  }
+}
+
+// iOS는 잠시 가만 있으면 오디오를 다시 잠재움 → 소리 내기 직전에 깨운다
+function wake() {
+  if (ctx && ctx.state === "suspended") ctx.resume();
 }
 
 // 단일 음 재생 (벨/실로폰 느낌)
@@ -88,6 +108,7 @@ export function stopCallMusic() {
 // 화면 터치 시 효과음 (반짝 올라가는 소리)
 export function playSparkle() {
   if (!ctx || muted) return;
+  wake();
   const now = ctx.currentTime;
   const notes = [523.25, 659.25, 783.99]; // 도 미 솔 (부드럽게 올라가는 차임)
   notes.forEach((f, i) => playBell(f, now + i * 0.08, 0.2));
@@ -96,6 +117,7 @@ export function playSparkle() {
 // 비눗방울 터질 때 "퐁" 소리 (짧고 통통)
 export function playPop() {
   if (!ctx || muted) return;
+  wake();
   const now = ctx.currentTime;
   const osc = ctx.createOscillator();
   const g = ctx.createGain();
@@ -116,6 +138,7 @@ export function playPop() {
 // 까꿍! 등장 소리 (밝게 올라가는 차임)
 export function playPeekaboo() {
   if (!ctx || muted) return;
+  wake();
   const now = ctx.currentTime;
   const notes = [523.25, 659.25, 783.99, 1046.5]; // 도 미 솔 도↑
   notes.forEach((f, i) => playBell(f, now + i * 0.09, 0.22));
@@ -125,6 +148,7 @@ export function playPeekaboo() {
 const KEY_TONES = [330, 392, 440, 494, 523, 587, 659, 698, 784, 880];
 export function playKeyBeep(n) {
   if (!ctx || muted) return;
+  wake();
   const f = KEY_TONES[((n % 10) + 10) % 10];
   const now = ctx.currentTime;
   const osc = ctx.createOscillator();
@@ -164,6 +188,7 @@ function doorbellTone(freq, start, dur) {
 }
 export function playDing() {
   if (!ctx || muted) return;
+  wake();
   const now = ctx.currentTime;
   doorbellTone(659.25, now, 0.9);        // 딩 (E5)
   doorbellTone(523.25, now + 0.5, 1.4);  // 동~ (C5, 더 길게)
@@ -172,6 +197,7 @@ export function playDing() {
 // 문 열림 "띠리링~" (밝게 올라가는 차임)
 export function playDoorOpen() {
   if (!ctx || muted) return;
+  wake();
   const now = ctx.currentTime;
   const notes = [523.25, 659.25, 783.99, 1046.5, 1318.51];
   notes.forEach((f, i) => playBell(f, now + i * 0.11, 0.24));
