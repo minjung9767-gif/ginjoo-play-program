@@ -178,7 +178,7 @@ html, body {
   .home-header { margin-bottom: clamp(14px, 3.5vh, 32px); }
   /* 제목은 한 줄 유지, 일러스트는 제목 아래 가운데로 */
   .home-title { flex-direction: column; gap: clamp(6px, 1.5vh, 14px); }
-  .title-text { font-size: clamp(2.6rem, 13vw, 5rem); white-space: nowrap; }
+  .title-text { font-size: clamp(3rem, 16.5vw, 7rem); white-space: nowrap; }
   .title-emoji { margin-left: 0; }
   .title-emoji .playground-svg { width: clamp(2.6rem, 11vmin, 5rem); }
   .play-buttons { gap: clamp(14px, 2.2vh, 22px); }
