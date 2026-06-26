@@ -173,6 +173,25 @@ html, body {
   border-radius: 999px;
 }
 
+/* ===== 폰 세로: 제목+버튼이 한 화면에 다 들어오도록 크기/간격만 축소 (스크롤 없음) ===== */
+@media (orientation: portrait) and (max-width: 600px) {
+  .home-header { margin-bottom: clamp(14px, 3.5vh, 32px); }
+  .title-text { font-size: clamp(3rem, 15vmin, 5.5rem); }
+  .title-emoji { margin-left: clamp(6px, 1.5vmin, 16px); }
+  .title-emoji .playground-svg { width: clamp(2.8rem, 11vmin, 5.5rem); }
+  .play-buttons { gap: clamp(14px, 2.2vh, 22px); }
+  .play-btn {
+    width: clamp(150px, 62vmin, 300px);
+    height: clamp(138px, 19vh, 200px);
+  }
+  .play-emoji { font-size: clamp(2.8rem, 10vmin, 5.5rem); }
+  .play-emoji .icon-svg {
+    width: clamp(3.2rem, 11vmin, 6.5rem);
+    height: clamp(3.2rem, 11vmin, 6.5rem);
+  }
+  .play-label { font-size: clamp(1.1rem, 4.2vmin, 1.7rem); }
+}
+
 /* ===== 게임 화면 ===== */
 #game { background: #000; }
 
