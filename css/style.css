@@ -106,6 +106,7 @@ html, body {
   display: inline-flex;
   align-items: center;
   line-height: 1;
+  margin-left: clamp(8px, 2vmin, 28px); /* 일러스트를 살짝 오른쪽으로 */
   filter: drop-shadow(0 4px 8px rgba(0,0,0,0.18));
 }
 .title-emoji .playground-svg {
