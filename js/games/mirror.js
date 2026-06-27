@@ -21,7 +21,7 @@ const CHANGE_MS = 5000; // 이후 5초마다 다른 모양으로 변경 (사라�
 let faceLandmarker = null;
 let rafId = null;
 let lastVideoTime = -1;
-let lastLandmarks = null;
+let lastFaces = null;
 let lastSeenAt = 0;
 
 let callState = "standby"; // standby | connecting | incall
@@ -60,7 +60,7 @@ export async function startMirror(videoEl, canvasEl, onReady) {
 
   // 상태 초기화
   lastVideoTime = -1;
-  lastLandmarks = null;
+  lastFaces = null;
   callState = "standby";
   styleIndex = 0;
 
@@ -69,7 +69,7 @@ export async function startMirror(videoEl, canvasEl, onReady) {
   faceLandmarker = await FaceLandmarker.createFromOptions(fileset, {
     baseOptions: { modelAssetPath: MODEL_PATH, delegate: "GPU" },
     runningMode: "VIDEO",
-    numFaces: 1,
+    numFaces: 4, // 여러 명(최대 4명)에게 동시에 동물 필터 적용
   });
 
   buildUI();
@@ -98,7 +98,7 @@ export async function startMirror(videoEl, canvasEl, onReady) {
         lastVideoTime = videoEl.currentTime;
         const res = faceLandmarker.detectForVideo(videoEl, now);
         if (res.faceLandmarks && res.faceLandmarks.length > 0) {
-          lastLandmarks = res.faceLandmarks[0];
+          lastFaces = res.faceLandmarks;
           lastSeenAt = now;
         }
       }
@@ -107,8 +107,9 @@ export async function startMirror(videoEl, canvasEl, onReady) {
       const elapsed = now - callBeginAt;
       if (elapsed >= INITIAL_DELAY) {
         styleIndex = Math.floor((elapsed - INITIAL_DELAY) / CHANGE_MS);
-        if (lastLandmarks && now - lastSeenAt < 600) {
-          drawStickers(ctx, canvasEl, lastLandmarks);
+        if (lastFaces && now - lastSeenAt < 600) {
+          // 잡힌 얼굴 전부에 동물 필터 적용 (여러 명)
+          for (const face of lastFaces) drawStickers(ctx, canvasEl, face);
         }
       }
 
@@ -148,7 +149,7 @@ function onEnd() {
     clearTimeout(connectTimer);
     connectTimer = null;
   }
-  lastLandmarks = null;
+  lastFaces = null;
   setState("standby");
   playCallMusic();
 }
@@ -411,7 +412,7 @@ export function stopMirror(videoEl, canvasEl) {
     const ctx = canvasEl.getContext("2d");
     ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
   }
-  lastLandmarks = null;
+  lastFaces = null;
   lastVideoTime = -1;
   callState = "standby";
 }
