@@ -27,7 +27,7 @@ let lastSeenAt = 0;
 let callState = "standby"; // standby | connecting | incall
 let connectTimer = null;
 let callStartAt = 0; // "통화중" 시작 시각 (통화 시간 표시용)
-let callBeginAt = 0; // 전화 연결을 누른 시각 (동물 등장 기준 시계)
+let callBeginAt = 0; // 영상통화 입장(대기중) 시각 (동물 등장 기준 시계)
 let styleIndex = 0;
 
 // DOM 참조
@@ -74,6 +74,7 @@ export async function startMirror(videoEl, canvasEl, onReady) {
 
   buildUI();
   setState("standby");
+  callBeginAt = performance.now(); // 동물 등장 기준 시계: 영상통화 입장(대기중)과 동시에 시작
   playCallMusic();
 
   function syncCanvasSize() {
@@ -91,31 +92,28 @@ export async function startMirror(videoEl, canvasEl, onReady) {
     syncCanvasSize();
     ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
 
-    if (callState === "connecting" || callState === "incall") {
-      const now = performance.now();
-      // 얼굴 추적 (연결 중부터 시작)
-      if (videoEl.currentTime !== lastVideoTime) {
-        lastVideoTime = videoEl.currentTime;
-        const res = faceLandmarker.detectForVideo(videoEl, now);
-        if (res.faceLandmarks && res.faceLandmarks.length > 0) {
-          lastFaces = res.faceLandmarks;
-          lastSeenAt = now;
-        }
+    const now = performance.now();
+    // 얼굴 추적 (대기중부터 항상)
+    if (videoEl.currentTime !== lastVideoTime) {
+      lastVideoTime = videoEl.currentTime;
+      const res = faceLandmarker.detectForVideo(videoEl, now);
+      if (res.faceLandmarks && res.faceLandmarks.length > 0) {
+        lastFaces = res.faceLandmarks;
+        lastSeenAt = now;
       }
-
-      // 스티커: 연결 시작 후 처음 5초는 안 나오고, 이후 계속 떠 있으며 5초마다 모양만 바뀜
-      const elapsed = now - callBeginAt;
-      if (elapsed >= INITIAL_DELAY) {
-        styleIndex = Math.floor((elapsed - INITIAL_DELAY) / CHANGE_MS);
-        if (lastFaces && now - lastSeenAt < 600) {
-          // 잡힌 얼굴 전부에 동물 필터 적용 (여러 명)
-          for (const face of lastFaces) drawStickers(ctx, canvasEl, face);
-        }
-      }
-
-      // 통화 시간 갱신 (통화중에만)
-      if (callState === "incall") updateTimer();
     }
+
+    // 스티커: 입장 후 처음 5초는 안 나오고, 이후 계속 떠 있으며 5초마다 모양만 바뀜
+    // (대기중 · 연결 중 · 통화중 모든 상태에서 표시)
+    const elapsed = now - callBeginAt;
+    if (elapsed >= INITIAL_DELAY && lastFaces && now - lastSeenAt < 600) {
+      styleIndex = Math.floor((elapsed - INITIAL_DELAY) / CHANGE_MS);
+      // 잡힌 얼굴 전부에 동물 필터 적용 (여러 명)
+      for (const face of lastFaces) drawStickers(ctx, canvasEl, face);
+    }
+
+    // 통화 시간 갱신 (통화중에만)
+    if (callState === "incall") updateTimer();
 
     if (!ready) {
       ready = true;
@@ -136,7 +134,6 @@ function setState(s) {
 function onConnect() {
   stopCallMusic();
   setState("connecting");
-  callBeginAt = performance.now(); // 동물 등장 기준 시계는 연결 시작과 동시에
   if (connectTimer) clearTimeout(connectTimer);
   connectTimer = setTimeout(() => {
     callStartAt = performance.now();
