@@ -217,8 +217,8 @@ html, body {
   gap: 10px;
 }
 .ctrl-btn {
-  width: clamp(44px, 7.5vmin, 64px);
-  height: clamp(44px, 7.5vmin, 64px);
+  width: clamp(54px, 9.2vmin, 80px);
+  height: clamp(54px, 9.2vmin, 80px);
   border: none;
   border-radius: 50%;
   background: #4aa6e6;

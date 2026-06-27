@@ -15,7 +15,7 @@ const MODEL_PATH =
 
 // 귀여운 동물 변신 세트 (등장할 때마다 바뀜)
 const ANIMAL_SETS = ["rabbit", "bear", "cat", "puppy", "panda"];
-const INITIAL_DELAY = 5000; // 전화 받고 처음 등장까지 (5초)
+const INITIAL_DELAY = 5000; // 연결 시작 후 처음 등장까지 (5초)
 const CHANGE_MS = 5000; // 이후 5초마다 다른 모양으로 변경 (사라지지 않음)
 
 let faceLandmarker = null;
@@ -26,10 +26,9 @@ let lastSeenAt = 0;
 
 let callState = "standby"; // standby | connecting | incall
 let connectTimer = null;
-let callStartAt = 0;
-let cycleStart = 0;
+let callStartAt = 0; // "통화중" 시작 시각 (통화 시간 표시용)
+let callBeginAt = 0; // 전화 연결을 누른 시각 (동물 등장 기준 시계)
 let styleIndex = 0;
-let wasShowing = false;
 
 // DOM 참조
 let uiEl = null;
@@ -64,7 +63,6 @@ export async function startMirror(videoEl, canvasEl, onReady) {
   lastLandmarks = null;
   callState = "standby";
   styleIndex = 0;
-  wasShowing = false;
 
   // 모델 로딩 (통화중 스티커용)
   const fileset = await FilesetResolver.forVisionTasks(WASM_PATH);
@@ -93,9 +91,9 @@ export async function startMirror(videoEl, canvasEl, onReady) {
     syncCanvasSize();
     ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
 
-    if (callState === "incall") {
+    if (callState === "connecting" || callState === "incall") {
       const now = performance.now();
-      // 얼굴 추적
+      // 얼굴 추적 (연결 중부터 시작)
       if (videoEl.currentTime !== lastVideoTime) {
         lastVideoTime = videoEl.currentTime;
         const res = faceLandmarker.detectForVideo(videoEl, now);
@@ -105,8 +103,8 @@ export async function startMirror(videoEl, canvasEl, onReady) {
         }
       }
 
-      // 스티커: 처음 5초는 안 나오고, 이후 계속 떠 있으며 5초마다 모양만 바뀜
-      const elapsed = now - callStartAt;
+      // 스티커: 연결 시작 후 처음 5초는 안 나오고, 이후 계속 떠 있으며 5초마다 모양만 바뀜
+      const elapsed = now - callBeginAt;
       if (elapsed >= INITIAL_DELAY) {
         styleIndex = Math.floor((elapsed - INITIAL_DELAY) / CHANGE_MS);
         if (lastLandmarks && now - lastSeenAt < 600) {
@@ -114,8 +112,8 @@ export async function startMirror(videoEl, canvasEl, onReady) {
         }
       }
 
-      // 통화 시간 갱신
-      updateTimer();
+      // 통화 시간 갱신 (통화중에만)
+      if (callState === "incall") updateTimer();
     }
 
     if (!ready) {
@@ -137,11 +135,10 @@ function setState(s) {
 function onConnect() {
   stopCallMusic();
   setState("connecting");
+  callBeginAt = performance.now(); // 동물 등장 기준 시계는 연결 시작과 동시에
   if (connectTimer) clearTimeout(connectTimer);
   connectTimer = setTimeout(() => {
     callStartAt = performance.now();
-    cycleStart = performance.now();
-    wasShowing = false;
     setState("incall");
   }, 2200);
 }
