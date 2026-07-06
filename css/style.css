@@ -191,6 +191,11 @@ html, body {
     width: clamp(3.2rem, 11vmin, 6.5rem);
     height: clamp(3.2rem, 11vmin, 6.5rem);
   }
+  .night-medal {
+    width: clamp(3.4rem, 11vmin, 6.5rem);
+    height: clamp(3.4rem, 11vmin, 6.5rem);
+  }
+  .night-medal .nm-moon { font-size: clamp(1.9rem, 6.5vmin, 3.6rem); }
   .play-label { font-size: clamp(1.1rem, 4.2vmin, 1.7rem); }
 }
 
@@ -490,15 +495,40 @@ html, body {
 }
 
 /* ===== 🌙 잠자리 동화 ===== */
-/* 시작 화면의 밤 버튼 (은은한 저녁빛 유리 카드 — 다른 카드와 어우러지게) */
-.play-btn-night {
-  background: linear-gradient(160deg, rgba(150, 162, 235, 0.55), rgba(120, 132, 214, 0.40));
-  border-color: rgba(190, 200, 255, 0.65);
+/* 시작 화면 아이콘: 하얀 유리 카드는 그대로 두고, 달을 '밤하늘 동그라미'에 담아
+   다른 카드(초록 전화·파란 도어록)처럼 색깔 아이콘으로 통일 */
+.night-medal {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: clamp(4.5rem, 15vmin, 10rem);
+  height: clamp(4.5rem, 15vmin, 10rem);
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 30%, #3c4a92 0%, #26305f 55%, #171b40 100%);
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.28), inset 0 2px 3px rgba(255, 255, 255, 0.18);
 }
-.play-btn-night:active:not(:disabled) {
-  background: linear-gradient(160deg, rgba(165, 176, 242, 0.62), rgba(132, 144, 222, 0.48));
+.night-medal .nm-moon {
+  position: relative;
+  z-index: 1;
+  font-size: clamp(2.6rem, 9vmin, 5.6rem);
+  line-height: 1;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.35));
 }
-.play-btn-night .play-label { color: #33367e; }
+.night-medal .nm-star {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #fff;
+  opacity: 0.85;
+  box-shadow: 0 0 4px #fff;
+}
+.nm-star.s1 { left: 20%; top: 25%; }
+.nm-star.s2 { left: 75%; top: 20%; }
+.nm-star.s3 { left: 30%; top: 72%; }
+.nm-star.s4 { left: 82%; top: 66%; }
+.nm-star.s5 { left: 55%; top: 14%; }
 
 /* 밤하늘 배경 */
 #game.story-mode { background: linear-gradient(180deg, #0b1030 0%, #141a45 55%, #232a5c 100%); }
