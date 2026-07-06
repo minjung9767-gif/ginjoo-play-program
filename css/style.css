@@ -536,8 +536,9 @@ html, body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: clamp(16px, 4vh, 40px);
-  padding: 8vh 4vw 4vh;
+  gap: clamp(12px, 3vh, 32px);
+  padding: 7vh 4vw 4vh;
+  overflow-y: auto; /* 이야기가 많아 넘치면 스크롤 (안전장치) */
 }
 .story-picker-title {
   font-size: clamp(1.4rem, 5vmin, 2.8rem);
@@ -548,9 +549,9 @@ html, body {
 }
 .story-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: clamp(12px, 2.5vmin, 26px);
-  width: min(92vw, 760px);
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(12px, 2.2vmin, 24px);
+  width: min(94vw, 1040px);
 }
 .story-card {
   display: flex;
@@ -558,7 +559,7 @@ html, body {
   align-items: center;
   justify-content: center;
   gap: 0.8vmin;
-  padding: clamp(14px, 3vmin, 30px);
+  padding: clamp(12px, 2.4vmin, 24px);
   border: 1px solid rgba(170, 180, 255, 0.28);
   border-radius: 24px;
   background: linear-gradient(160deg, rgba(60, 70, 130, 0.55), rgba(30, 36, 80, 0.55));
@@ -740,6 +741,7 @@ html, body {
 /* 폰 세로: 카드 세로 배치 여유 */
 @media (orientation: portrait) and (max-width: 600px) {
   .story-grid { grid-template-columns: repeat(2, 1fr); width: 94vw; }
+  .story-card-emoji { font-size: clamp(2rem, 7vmin, 4rem); }
   .story-stage { padding: 10vh 5vw 8vh; gap: 2.2vh; }
   .story-text { font-size: clamp(1.05rem, 4.6vmin, 1.5rem); }
 }
