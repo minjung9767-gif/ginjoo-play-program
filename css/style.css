@@ -595,6 +595,41 @@ html, body {
   line-height: 1.5;
 }
 
+/* 🎲 랜덤으로 듣기 버튼 (고르기 화면) */
+.story-random-btn {
+  display: flex;
+  align-items: center;
+  gap: clamp(10px, 2vmin, 18px);
+  padding: clamp(12px, 2.2vmin, 20px) clamp(20px, 4vmin, 40px);
+  border: 1px solid rgba(255, 220, 150, 0.5);
+  border-radius: 999px;
+  background: linear-gradient(160deg, rgba(255, 200, 120, 0.9), rgba(255, 160, 90, 0.85));
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35);
+  color: #4a2d10;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+.story-random-btn:active { transform: scale(0.97); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); }
+.story-random-btn .rnd-ico { font-size: clamp(1.8rem, 6vmin, 3rem); line-height: 1; }
+.story-random-btn .rnd-body { display: flex; flex-direction: column; align-items: flex-start; }
+.story-random-btn .rnd-txt { font-size: clamp(1.2rem, 4vmin, 2rem); }
+.story-random-btn .rnd-sub { font-size: clamp(0.72rem, 2.1vmin, 1.05rem); color: #6b4418; }
+
+/* 랜덤 재생 중 표시 (읽기 화면) */
+.story-random-chip {
+  display: flex;
+  align-items: center;
+  height: clamp(48px, 8.5vmin, 68px);
+  padding: 0 clamp(12px, 2.2vmin, 18px);
+  border-radius: 999px;
+  background: rgba(255, 200, 120, 0.2);
+  border: 1px solid rgba(255, 200, 120, 0.45);
+  color: #ffd79a;
+  font-size: clamp(0.9rem, 2.6vmin, 1.2rem);
+  white-space: nowrap;
+}
+
 /* 읽기 화면 컨트롤 (왼쪽 위: 다른 이야기 / 멈춤) */
 .story-controls {
   position: absolute;

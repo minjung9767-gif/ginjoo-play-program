@@ -23,6 +23,9 @@ let currentScene = 0;
 let sceneToken = 0;   // 장면이 바뀌면 +1 → 이전 장면의 자동 진행을 무효화
 let stalledNext = -1; // 장면 사이 쉬는 틈에 멈췄을 때, 다시 시작할 장면 번호
 let audioEl = null;   // 녹음 음성 파일 재생용 (scene.audio가 있을 때)
+let randomMode = false; // 🎲 랜덤 자동 재생 중인지
+let playlist = [];      // 랜덤 재생 목록 (엄마·아빠 녹음 이야기만, 섞인 순서)
+let playIdx = 0;        // 지금 재생 중인 목록 위치
 
 export async function startStory(videoEl, canvasEl, onReady) {
   const gameEl = document.getElementById("game");
@@ -52,6 +55,9 @@ export function stopStory() {
   story = null;
   paused = false;
   stalledNext = -1;
+  randomMode = false;
+  playlist = [];
+  playIdx = 0;
   document.removeEventListener("keydown", onKeyDown);
   stopSpeech();
   stopRecorded();
@@ -97,6 +103,9 @@ function renderPicker() {
   story = null;
   paused = false;
   stalledNext = -1;
+  randomMode = false;
+  playlist = [];
+  playIdx = 0;
   clearContent();
 
   const box = document.createElement("div");
@@ -122,6 +131,19 @@ function renderPicker() {
   });
   box.appendChild(grid);
 
+  // 🎲 랜덤 버튼: 엄마·아빠 녹음 이야기만 순서 섞어 계속 재생
+  const recorded = STORIES.filter((s) => s.voice);
+  if (recorded.length) {
+    const rnd = document.createElement("button");
+    rnd.className = "story-random-btn";
+    rnd.innerHTML =
+      '<span class="rnd-ico">🎲</span>' +
+      '<span class="rnd-body"><span class="rnd-txt">랜덤으로 듣기</span>' +
+      '<span class="rnd-sub">엄마·아빠 목소리 이야기를 순서 섞어 계속 들려줘요</span></span>';
+    rnd.addEventListener("click", startRandom);
+    box.appendChild(rnd);
+  }
+
   if (!ttsSupported()) {
     const warn = document.createElement("p");
     warn.className = "story-tts-warn";
@@ -141,6 +163,39 @@ function voiceBadge(st) {
   return '<span class="voice-badge voice-auto">🔊 자동 목소리</span>';
 }
 
+/* ===== 🎲 랜덤 자동 재생 (엄마·아빠 녹음 이야기만) ===== */
+function startRandom() {
+  const recorded = STORIES.filter((s) => s.voice);
+  if (!recorded.length) return;
+  playlist = shuffle(recorded);
+  playIdx = 0;
+  randomMode = true;
+  beginStory(playlist[0]);
+}
+
+// 한 편이 끝나면 목록의 다음 편으로. 다 돌면 다시 섞어서 계속 (틀어놓기용)
+function playNextInPlaylist() {
+  playIdx++;
+  if (playIdx >= playlist.length) {
+    const last = playlist[playlist.length - 1];
+    playlist = shuffle(playlist);
+    // 바로 같은 이야기가 연달아 나오지 않게
+    if (playlist.length > 1 && playlist[0] === last) playlist.push(playlist.shift());
+    playIdx = 0;
+  }
+  beginStory(playlist[playIdx]);
+}
+
+// Fisher-Yates 섞기 (원본은 그대로, 섞인 새 배열 반환)
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 /* ===== 이야기 읽기 화면 ===== */
 function beginStory(st) {
   story = st;
@@ -154,6 +209,7 @@ function beginStory(st) {
     '<div class="story-controls">' +
     '  <button class="story-ctrl story-back" aria-label="다른 이야기 고르기" title="다른 이야기"><span class="ctrl-ico">📚</span><span class="ctrl-cap">다른 이야기</span></button>' +
     '  <button class="story-ctrl story-pause" aria-label="멈춤/이어읽기" title="멈춤/이어읽기"><span class="ctrl-ico">⏸</span></button>' +
+    (randomMode ? '  <span class="story-random-chip">🎲 랜덤 재생 중</span>' : "") +
     "</div>" +
     '<div class="story-art"></div>' +
     '<p class="story-text"></p>' +
@@ -340,6 +396,11 @@ function updateDots(i) {
 /* ===== 끝 화면 ===== */
 function showEnd() {
   if (!running) return;
+  // 🎲 랜덤 재생 중이면 끝 화면 대신 다음 이야기로 이어감
+  if (randomMode) {
+    playNextInPlaylist();
+    return;
+  }
   sceneToken++;
   story = null;
   paused = false;
