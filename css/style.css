@@ -173,30 +173,36 @@ html, body {
   border-radius: 999px;
 }
 
-/* ===== 폰 세로: 제목+버튼이 한 화면에 다 들어오도록 크기/간격만 축소 (스크롤 없음) ===== */
+/* ===== 폰 세로: 놀이 카드를 2×2로 배치해 한 화면에 다 들어오게 (스크롤 없음) ===== */
 @media (orientation: portrait) and (max-width: 600px) {
-  .home-header { margin-bottom: clamp(14px, 3.5vh, 32px); }
+  #home { padding: 3vh 4vw; justify-content: center; }
+  .home-header { margin-bottom: clamp(10px, 2.5vh, 26px); }
   /* 제목은 한 줄 유지, 일러스트는 제목 아래 가운데로 */
-  .home-title { flex-direction: column; gap: clamp(6px, 1.5vh, 14px); }
-  .title-text { font-size: clamp(3rem, 16.5vw, 7rem); white-space: nowrap; }
+  .home-title { flex-direction: column; gap: clamp(4px, 1.2vh, 12px); }
+  .title-text { font-size: clamp(2.6rem, 14vw, 6rem); white-space: nowrap; }
   .title-emoji { margin-left: 0; }
-  .title-emoji .playground-svg { width: clamp(2.6rem, 11vmin, 5rem); }
-  .play-buttons { gap: clamp(14px, 2.2vh, 22px); }
-  .play-btn {
-    width: clamp(150px, 62vmin, 300px);
-    height: clamp(138px, 19vh, 200px);
+  .title-emoji .playground-svg { width: clamp(2.2rem, 9vmin, 4.5rem); }
+  /* 4개 카드를 2줄 x 2칸으로 */
+  .play-buttons {
+    gap: clamp(12px, 2vh, 20px);
+    max-width: 100%;
   }
-  .play-emoji { font-size: clamp(2.8rem, 10vmin, 5.5rem); }
+  .play-btn {
+    width: clamp(130px, 43vw, 210px);
+    height: clamp(120px, 20vh, 180px);
+    border-radius: 28px;
+  }
+  .play-emoji { font-size: clamp(2.4rem, 9vmin, 4.6rem); }
   .play-emoji .icon-svg {
-    width: clamp(3.2rem, 11vmin, 6.5rem);
-    height: clamp(3.2rem, 11vmin, 6.5rem);
+    width: clamp(2.8rem, 10vmin, 5.6rem);
+    height: clamp(2.8rem, 10vmin, 5.6rem);
   }
   .night-medal {
-    width: clamp(3.4rem, 11vmin, 6.5rem);
-    height: clamp(3.4rem, 11vmin, 6.5rem);
+    width: clamp(3rem, 10vmin, 5.6rem);
+    height: clamp(3rem, 10vmin, 5.6rem);
   }
-  .night-medal .nm-moon { font-size: clamp(1.9rem, 6.5vmin, 3.6rem); }
-  .play-label { font-size: clamp(1.1rem, 4.2vmin, 1.7rem); }
+  .night-medal .nm-moon { font-size: clamp(1.7rem, 6vmin, 3.2rem); }
+  .play-label { font-size: clamp(1rem, 4vmin, 1.6rem); }
 }
 
 /* ===== 게임 화면 ===== */
