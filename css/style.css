@@ -573,6 +573,19 @@ html, body {
 .story-card-emoji { font-size: clamp(2.4rem, 8vmin, 5rem); line-height: 1.2; }
 .story-card-title { font-size: clamp(1.1rem, 3.8vmin, 2rem); color: #f3efff; }
 .story-card-kind { font-size: clamp(0.75rem, 2.2vmin, 1.1rem); color: #9aa3d8; }
+
+/* 누가 읽어주는지 배지 */
+.voice-badge {
+  margin-top: 0.6vmin;
+  padding: 3px clamp(8px, 1.6vmin, 14px);
+  border-radius: 999px;
+  font-size: clamp(0.72rem, 2.1vmin, 1.05rem);
+  line-height: 1.6;
+  white-space: nowrap;
+}
+.voice-mom { background: rgba(255, 150, 190, 0.22); color: #ffb6d2; border: 1px solid rgba(255, 150, 190, 0.4); }
+.voice-dad { background: rgba(130, 190, 255, 0.22); color: #a9d4ff; border: 1px solid rgba(130, 190, 255, 0.4); }
+.voice-auto { background: rgba(180, 188, 230, 0.14); color: #a7add0; border: 1px solid rgba(180, 188, 230, 0.28); }
 .story-tts-warn {
   max-width: min(90vw, 640px);
   text-align: center;

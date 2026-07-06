@@ -1,10 +1,11 @@
 // 🌙 잠자리 동화 모음
 // - 각 이야기(story)는 여러 장면(scene)으로 나뉜다.
+// - story.voice: 누가 읽어주는지 표시용. "엄마" 또는 "아빠". 값이 없으면 자동 음성으로 봄.
+//                (이야기 하나는 통째로 한 사람이 녹음. 카드에 배지로 보여준다)
 // - scene.art  : 화면에 크게 보여줄 이모지 그림
 // - scene.text : 읽어줄 글 (자동 음성이 이 글을 읽는다)
-// - scene.audio: (나중에 확장용) 엄마가 녹음한 음성 파일 경로.
-//                값을 넣으면 자동 음성 대신 그 파일을 재생한다.
-//                예) audio: "assets/stories/heungbu-01.mp3"
+// - scene.audio: 녹음한 음성 파일 경로. 값을 넣으면 자동 음성 대신 그 파일을 재생한다.
+//                예) audio: "assets/stories/heungbu/heungbu-01.m4a"
 
 export const STORIES = [
   {
@@ -12,6 +13,7 @@ export const STORIES = [
     title: "흥부와 놀부",
     kind: "전래동화",
     emoji: "🐦",
+    voice: "엄마",
     // 엄마가 직접 녹음한 목소리로 읽어 준다 (파일이 없으면 자동 음성으로 대체)
     scenes: [
       { art: "🏡🌾", audio: "assets/stories/heungbu/heungbu-01.m4a", text: "옛날 옛날 아주 먼 옛날에, 흥부와 놀부 형제가 살았어요. 동생 흥부는 마음씨가 아주 따뜻했고, 형 놀부는 욕심이 많았답니다." },
@@ -53,6 +55,7 @@ export const STORIES = [
     title: "긴주와 달님 이불",
     kind: "창작동화",
     emoji: "🌙",
+    voice: "엄마",
     // 이 이야기는 엄마가 직접 녹음한 목소리로 읽어 준다 (파일이 없으면 자동 음성으로 대체)
     scenes: [
       { art: "🌃⭐", audio: "assets/stories/dalnim/dalnim-01.m4a", text: "밤이 되었어요. 하늘이 까만 이불을 덮고, 별들이 하나둘 눈을 떴어요. 긴주도 이제 코 잘 시간이에요." },
