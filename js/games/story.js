@@ -31,6 +31,8 @@ export async function startStory(videoEl, canvasEl, onReady) {
   paused = false;
   story = null;
 
+  document.addEventListener("keydown", onKeyDown);
+
   wrapEl = document.createElement("div");
   wrapEl.className = "story-wrap";
   makeStars(wrapEl, 36);
@@ -50,6 +52,7 @@ export function stopStory() {
   story = null;
   paused = false;
   stalledNext = -1;
+  document.removeEventListener("keydown", onKeyDown);
   stopSpeech();
   stopRecorded();
   const gameEl = document.getElementById("game");
@@ -138,6 +141,10 @@ function beginStory(st) {
   stageEl = document.createElement("div");
   stageEl.className = "story-stage";
   stageEl.innerHTML =
+    '<div class="story-controls">' +
+    '  <button class="story-ctrl story-back" aria-label="다른 이야기 고르기" title="다른 이야기"><span class="ctrl-ico">📚</span><span class="ctrl-cap">다른 이야기</span></button>' +
+    '  <button class="story-ctrl story-pause" aria-label="멈춤/이어읽기" title="멈춤/이어읽기"><span class="ctrl-ico">⏸</span></button>' +
+    "</div>" +
     '<div class="story-art"></div>' +
     '<p class="story-text"></p>' +
     '<div class="story-dots"></div>' +
@@ -146,13 +153,25 @@ function beginStory(st) {
     '  <div class="sp-text">잠깐 쉬는 중이에요</div>' +
     '  <div class="sp-sub">화면을 누르면 이어서 읽어 줄게요</div>' +
     "</div>" +
-    `<div class="story-hint">${ttsSupported() ? "화면을 누르면 잠깐 멈춰요" : "화면을 누르면 다음 장면으로 넘어가요"}</div>`;
+    `<div class="story-hint">${ttsSupported() ? "화면을 누르거나 스페이스바로 잠깐 멈춰요" : "화면을 누르면 다음 장면으로 넘어가요"}</div>`;
 
   const dots = stageEl.querySelector(".story-dots");
   st.scenes.forEach(() => {
     const d = document.createElement("span");
     d.className = "story-dot";
     dots.appendChild(d);
+  });
+
+  // 컨트롤 버튼 (화면 탭보다 우선 처리하도록 이벤트 전파 막기)
+  stageEl.querySelector(".story-back").addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    renderPicker();
+  });
+  stageEl.querySelector(".story-pause").addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    togglePause();
   });
 
   stageEl.addEventListener("pointerdown", onStageTap);
@@ -175,8 +194,21 @@ function onStageTap(e) {
     playScene(currentScene + 1);
     return;
   }
+  togglePause();
+}
+
+// 화면 멈춤 버튼 / 스페이스바 공용 토글
+function togglePause() {
+  if (!running || !story || !ttsSupported()) return;
   if (paused) resumeReading();
   else pauseReading();
+}
+
+function onKeyDown(e) {
+  if (e.code !== "Space" && e.key !== " ") return;
+  if (!story) return; // 이야기 고르기 화면에선 무시
+  e.preventDefault();
+  togglePause();
 }
 
 function pauseReading() {
@@ -205,6 +237,8 @@ function togglePausedOverlay(show) {
   if (!stageEl) return;
   const ov = stageEl.querySelector(".story-paused-overlay");
   if (ov) ov.classList.toggle("hidden", !show);
+  const ico = stageEl.querySelector(".story-pause .ctrl-ico");
+  if (ico) ico.textContent = show ? "▶" : "⏸";
 }
 
 async function playScene(i) {
@@ -317,10 +351,7 @@ function showEnd() {
   });
   end.appendChild(again);
   contentEl.appendChild(end);
-
-  if (ttsSupported()) {
-    speakText("이야기 끝. 이제 코 자자. 잘 자요.", { rate: 0.8, volume: 0.9, muted: isMuted });
-  }
+  // 끝 화면은 소리 없이 글자만 (자는 아기를 깨우지 않도록)
 }
 
 function delay(ms) {
