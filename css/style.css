@@ -490,15 +490,15 @@ html, body {
 }
 
 /* ===== 🌙 잠자리 동화 ===== */
-/* 시작 화면의 밤 버튼 (어두운 카드) */
+/* 시작 화면의 밤 버튼 (은은한 저녁빛 유리 카드 — 다른 카드와 어우러지게) */
 .play-btn-night {
-  background: linear-gradient(160deg, rgba(46, 56, 104, 0.85), rgba(24, 28, 62, 0.8));
-  border-color: rgba(160, 170, 255, 0.35);
+  background: linear-gradient(160deg, rgba(150, 162, 235, 0.55), rgba(120, 132, 214, 0.40));
+  border-color: rgba(190, 200, 255, 0.65);
 }
 .play-btn-night:active:not(:disabled) {
-  background: linear-gradient(160deg, rgba(62, 74, 130, 0.9), rgba(34, 40, 82, 0.85));
+  background: linear-gradient(160deg, rgba(165, 176, 242, 0.62), rgba(132, 144, 222, 0.48));
 }
-.play-btn-night .play-label { color: #ffe9b3; }
+.play-btn-night .play-label { color: #33367e; }
 
 /* 밤하늘 배경 */
 #game.story-mode { background: linear-gradient(180deg, #0b1030 0%, #141a45 55%, #232a5c 100%); }
