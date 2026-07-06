@@ -242,14 +242,18 @@ async function playScene(i) {
   playScene(i + 1);
 }
 
-// 장면 하나 읽기: 녹음 파일이 있으면 그걸 재생, 없으면 자동 음성(TTS)
+// 장면 하나 읽기: 녹음 파일이 있으면 그걸 재생, 없거나 재생 실패면 자동 음성(TTS)
 function speakScene(sc) {
-  if (sc.audio) return playRecorded(sc.audio);
-  if (!ttsSupported()) return Promise.resolve(false); // 직접 읽어주기 모드: 자동 진행 없음
-  return speakText(sc.text, { rate: 0.85, volume: 0.95, muted: isMuted }).then((r) => r.finished);
+  const tts = () => {
+    if (!running || !ttsSupported()) return Promise.resolve(false); // 종료됨 / 직접 읽어주기 모드
+    return speakText(sc.text, { rate: 0.85, volume: 0.95, muted: isMuted }).then((r) => r.finished);
+  };
+  if (sc.audio) return playRecorded(sc.audio).then((ok) => (ok ? true : tts()));
+  return tts();
 }
 
-/* ===== 녹음 음성 파일 재생 (나중에 엄마 목소리 넣을 때 사용) ===== */
+/* ===== 녹음 음성 파일 재생 (엄마 목소리) ===== */
+// 끝까지 재생하면 true, 파일이 없거나 재생에 실패하면 false (→ 자동 음성으로 대체)
 function playRecorded(src) {
   return new Promise((resolve) => {
     audioEl = new Audio(src);
@@ -260,11 +264,14 @@ function playRecorded(src) {
     };
     audioEl.onerror = () => {
       audioEl = null;
-      resolve(true);
+      resolve(false);
     };
     audioEl.play().catch(() => {
-      audioEl = null;
-      resolve(true);
+      // 자동재생이 막히거나 형식을 지원하지 않는 경우
+      if (audioEl) {
+        audioEl = null;
+        resolve(false);
+      }
     });
   });
 }
