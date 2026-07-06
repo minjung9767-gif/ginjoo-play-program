@@ -266,8 +266,8 @@ async function playScene(i) {
   const finished = await speakScene(sc);
   if (!running || token !== sceneToken || !finished) return;
 
-  // 장면 사이 잠깐 숨 고르기
-  await delay(1500);
+  // 장면 사이 잠깐 숨 고르기 (소리만 들을 때 답답하지 않게 짧게)
+  await delay(500);
   if (!running || token !== sceneToken) return;
   if (paused) {
     stalledNext = i + 1;
