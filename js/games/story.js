@@ -115,7 +115,8 @@ function renderPicker() {
     b.innerHTML =
       `<span class="story-card-emoji">${st.emoji}</span>` +
       `<span class="story-card-title">${st.title}</span>` +
-      `<span class="story-card-kind">${st.kind}</span>`;
+      `<span class="story-card-kind">${st.kind}</span>` +
+      voiceBadge(st);
     b.addEventListener("click", () => beginStory(st));
     grid.appendChild(b);
   });
@@ -129,6 +130,15 @@ function renderPicker() {
   }
 
   contentEl.appendChild(box);
+}
+
+// 누가 읽어주는지 배지 (엄마/아빠 = 녹음 목소리, 없으면 자동 음성)
+function voiceBadge(st) {
+  if (st.voice === "엄마")
+    return '<span class="voice-badge voice-mom">🎤 엄마 목소리</span>';
+  if (st.voice === "아빠")
+    return '<span class="voice-badge voice-dad">🎤 아빠 목소리</span>';
+  return '<span class="voice-badge voice-auto">🔊 자동 목소리</span>';
 }
 
 /* ===== 이야기 읽기 화면 ===== */
