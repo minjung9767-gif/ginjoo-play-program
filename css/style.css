@@ -696,6 +696,33 @@ html, body {
 .story-ctrl .ctrl-cap { font-size: clamp(0.95rem, 2.8vmin, 1.3rem); }
 .story-pause { padding: 0; width: clamp(48px, 8.5vmin, 68px); justify-content: center; }
 
+/* 좌우 이전/다음 화살표 (가장자리 세로 중앙) */
+.story-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 11;
+  width: clamp(56px, 10vmin, 88px);
+  height: clamp(56px, 10vmin, 88px);
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffe9b3;
+  font-size: clamp(1.6rem, 5vmin, 2.8rem);
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: transform 0.1s ease, background 0.1s ease, opacity 0.2s ease;
+}
+.story-prev { left: clamp(10px, 2.5vw, 34px); }
+.story-next { right: clamp(10px, 2.5vw, 34px); }
+.story-nav:active { transform: translateY(-50%) scale(0.9); background: rgba(255, 255, 255, 0.24); }
+.story-nav:disabled { opacity: 0.25; pointer-events: none; }
+
 /* 읽기 화면 */
 .story-stage {
   position: absolute;
