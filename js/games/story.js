@@ -211,6 +211,8 @@ function beginStory(st) {
     '  <button class="story-ctrl story-pause" aria-label="멈춤/이어읽기" title="멈춤/이어읽기"><span class="ctrl-ico">⏸</span></button>' +
     (randomMode ? '  <span class="story-random-chip">🎲 랜덤 재생 중</span>' : "") +
     "</div>" +
+    '<button class="story-nav story-prev" aria-label="이전 장면">❮</button>' +
+    '<button class="story-nav story-next" aria-label="다음 장면">❯</button>' +
     '<div class="story-art"></div>' +
     '<p class="story-text"></p>' +
     '<div class="story-dots"></div>' +
@@ -219,7 +221,7 @@ function beginStory(st) {
     '  <div class="sp-text">잠깐 쉬는 중이에요</div>' +
     '  <div class="sp-sub">화면을 누르면 이어서 읽어 줄게요</div>' +
     "</div>" +
-    `<div class="story-hint">${ttsSupported() ? "화면을 누르거나 스페이스바로 잠깐 멈춰요" : "화면을 누르면 다음 장면으로 넘어가요"}</div>`;
+    `<div class="story-hint">${ttsSupported() ? "화면을 누르거나 스페이스바로 잠깐 멈춰요 · ‹ › 로 앞뒤 장면" : "화면을 누르면 다음 장면으로 넘어가요"}</div>`;
 
   const dots = stageEl.querySelector(".story-dots");
   st.scenes.forEach(() => {
@@ -238,6 +240,17 @@ function beginStory(st) {
     e.preventDefault();
     e.stopPropagation();
     togglePause();
+  });
+  // 좌우 이전/다음 화살표
+  stageEl.querySelector(".story-prev").addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    prevScene();
+  });
+  stageEl.querySelector(".story-next").addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    nextScene();
   });
 
   stageEl.addEventListener("pointerdown", onStageTap);
@@ -270,11 +283,46 @@ function togglePause() {
   else pauseReading();
 }
 
+// 이전/다음 장면으로 (소리를 안 기다리고 바로 이동)
+function goToScene(i) {
+  if (!running || !story) return;
+  const target = Math.max(0, Math.min(i, story.scenes.length - 1));
+  stopSpeech();
+  stopRecorded();
+  paused = false;
+  stalledNext = -1;
+  togglePausedOverlay(false);
+  playScene(target);
+}
+function prevScene() {
+  if (!running || !story) return;
+  if (currentScene <= 0) return; // 첫 장면이면 무시
+  goToScene(currentScene - 1);
+}
+function nextScene() {
+  if (!running || !story) return;
+  if (currentScene >= story.scenes.length - 1) {
+    // 마지막 장면에서 다음 → 끝 (랜덤이면 다음 이야기)
+    stopSpeech();
+    stopRecorded();
+    showEnd();
+    return;
+  }
+  goToScene(currentScene + 1);
+}
+
 function onKeyDown(e) {
-  if (e.code !== "Space" && e.key !== " ") return;
   if (!story) return; // 이야기 고르기 화면에선 무시
-  e.preventDefault();
-  togglePause();
+  if (e.code === "Space" || e.key === " ") {
+    e.preventDefault();
+    togglePause();
+  } else if (e.key === "ArrowLeft") {
+    e.preventDefault();
+    prevScene();
+  } else if (e.key === "ArrowRight") {
+    e.preventDefault();
+    nextScene();
+  }
 }
 
 function pauseReading() {
@@ -328,6 +376,9 @@ async function playScene(i) {
   artEl.classList.add("scene-in");
   textEl.classList.add("scene-in");
   updateDots(i);
+  // 첫 장면에선 '이전' 화살표 흐리게(비활성)
+  const prevBtn = stageEl.querySelector(".story-prev");
+  if (prevBtn) prevBtn.disabled = i === 0;
 
   const finished = await speakScene(sc);
   if (!running || token !== sceneToken || !finished) return;
