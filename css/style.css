@@ -571,10 +571,12 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  /* 위(제목)부터 시작하되, 내용이 짧으면 세로 가운데로 */
+  justify-content: safe center;
   gap: clamp(12px, 3vh, 32px);
-  padding: 7vh 4vw 4vh;
-  overflow-y: auto; /* 이야기가 많아 넘치면 스크롤 (안전장치) */
+  padding: 7vh 4vw 5vh;
+  overflow-y: auto; /* 이야기가 많아 넘치면 스크롤 */
+  -webkit-overflow-scrolling: touch;
 }
 .story-picker-title {
   font-size: clamp(1.4rem, 5vmin, 2.8rem);
