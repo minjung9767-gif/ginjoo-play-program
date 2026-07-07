@@ -840,8 +840,17 @@ html, body {
 @media (orientation: portrait) and (max-width: 600px) {
   .story-grid { grid-template-columns: repeat(2, 1fr); width: 94vw; }
   .story-card-emoji { font-size: clamp(2rem, 7vmin, 4rem); }
-  .story-stage { padding: 10vh 5vw 8vh; gap: 2.2vh; }
-  .story-text { font-size: clamp(1.05rem, 4.6vmin, 1.5rem); }
+  /* 좌우 화살표와 글이 겹치지 않게: 글 영역을 화살표 안쪽으로 좁힘 */
+  .story-stage { padding: 10vh 16vw 8vh; gap: 2.2vh; }
+  .story-text { max-width: 100%; font-size: clamp(1.05rem, 4.6vmin, 1.5rem); }
+  /* 화살표도 살짝 작게, 가장자리에 더 붙여 겹침 여백 확보 */
+  .story-nav {
+    width: clamp(44px, 12vw, 58px);
+    height: clamp(44px, 12vw, 58px);
+    font-size: clamp(1.3rem, 5.5vw, 1.9rem);
+  }
+  .story-prev { left: clamp(4px, 1.5vw, 12px); }
+  .story-next { right: clamp(4px, 1.5vw, 12px); }
 }
 
 /* ===== 영상통화 ===== */
