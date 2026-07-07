@@ -6,7 +6,7 @@ import {
   FilesetResolver,
 } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.20/vision_bundle.mjs";
 
-import { playCallMusic, stopCallMusic } from "../audio.js";
+import { playCallMusic, stopCallMusic, playSparkle } from "../audio.js";
 
 const WASM_PATH =
   "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.20/wasm";
@@ -18,11 +18,19 @@ const ANIMAL_SETS = ["rabbit", "bear", "cat", "puppy", "panda"];
 const INITIAL_DELAY = 5000; // 연결 시작 후 처음 등장까지 (5초)
 const CHANGE_MS = 5000; // 이후 5초마다 다른 모양으로 변경 (사라지지 않음)
 
+// 🐾 입 반응: 활짝 웃을수록(=쪽쪽이를 빼야 가능) 동물 입이 커지고, 크게 벌리면 반짝이가 팡!
+// 이 비율(입 벌림 거리 ÷ 두 눈 사이 거리)은 실제로 써 보면서 조정할 수 있음.
+const MOUTH_BIG_SMILE_RATIO = 0.55;
+const SMILE_BURST_COOLDOWN_MS = 1200; // 반짝이 재발동 최소 간격
+const SPARKLE_LIFE_MS = 650; // 반짝이 한 알갱이가 사라지기까지 시간
+
 let faceLandmarker = null;
 let rafId = null;
 let lastVideoTime = -1;
 let lastFaces = null;
 let lastSeenAt = 0;
+let mouthState = []; // 얼굴별 입 반응 상태 (반짝이 쿨다운용)
+let sparkles = []; // 활짝 웃을 때 팡 터지는 반짝이 알갱이들
 
 let callState = "standby"; // standby | connecting | incall
 let connectTimer = null;
@@ -47,6 +55,7 @@ const L = {
   leftCheek: 234,
   rightCheek: 454,
 };
+const MOUTH = { top: 13, bottom: 14 }; // 윗입술 안쪽 / 아랫입술 안쪽 중앙점
 
 function mid(a, b) {
   return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
@@ -63,6 +72,8 @@ export async function startMirror(videoEl, canvasEl, onReady) {
   lastFaces = null;
   callState = "standby";
   styleIndex = 0;
+  mouthState = [];
+  sparkles = [];
 
   // 모델 로딩 (통화중 스티커용)
   const fileset = await FilesetResolver.forVisionTasks(WASM_PATH);
@@ -109,8 +120,9 @@ export async function startMirror(videoEl, canvasEl, onReady) {
     if (elapsed >= INITIAL_DELAY && lastFaces && now - lastSeenAt < 600) {
       styleIndex = Math.floor((elapsed - INITIAL_DELAY) / CHANGE_MS);
       // 잡힌 얼굴 전부에 동물 필터 적용 (여러 명)
-      for (const face of lastFaces) drawStickers(ctx, canvasEl, face);
+      for (let i = 0; i < lastFaces.length; i++) drawStickers(ctx, canvasEl, lastFaces[i], i, now);
     }
+    drawSparkles(ctx, now); // 반짝이는 스티커 표시 여부와 무관하게 끝까지 애니메이션
 
     // 통화 시간 갱신 (통화중에만)
     if (callState === "incall") updateTimer();
@@ -214,7 +226,7 @@ function buildUI() {
 
 // ---------- 귀여운 동물 변신 그리기 ----------
 // 둥글둥글한 귀 + 코 + 볼터치(+수염)로 부드럽게. (이모지 대신 직접 그림)
-function drawStickers(ctx, canvas, lm) {
+function drawStickers(ctx, canvas, lm, faceIndex, now) {
   const W = canvas.width;
   const H = canvas.height;
   const toPx = (p) => ({ x: p.x * W, y: p.y * H });
@@ -248,6 +260,81 @@ function drawStickers(ctx, canvas, lm) {
   drawNose(ctx, noseTip, roll, faceW, style);
   if (style === "cat" || style === "puppy") {
     drawWhiskers(ctx, noseTip, right, up, faceW);
+  }
+
+  // 🐾 입 반응: 입을 벌릴수록 동물 입도 커지고, 활짝 웃으면(=쪽쪽이 못 물고 있을 정도) 반짝이가 팡!
+  const mouthTop = toPx(lm[MOUTH.top]);
+  const mouthBottom = toPx(lm[MOUTH.bottom]);
+  const mouthCenter = mid(mouthTop, mouthBottom);
+  const openRatio = dist(mouthTop, mouthBottom) / eyeDist;
+  drawMouth(ctx, mouthCenter, roll, faceW, style, openRatio);
+
+  const st = mouthState[faceIndex] || (mouthState[faceIndex] = { lastBurstAt: 0 });
+  if (openRatio > MOUTH_BIG_SMILE_RATIO && now - st.lastBurstAt > SMILE_BURST_COOLDOWN_MS) {
+    spawnSparkleBurst(mouthCenter.x, mouthCenter.y, faceW);
+    playSparkle();
+    st.lastBurstAt = now;
+  }
+}
+
+// 동물 입: 평소엔 살짝 다문 모양, 입을 벌릴수록(말하기) 점점 커지다가 활짝 웃으면 동그랗게 벌어짐
+function drawMouth(ctx, mouthCenter, roll, faceW, style, openRatio) {
+  const mouthColor =
+    style === "rabbit" || style === "cat" ? "#c9506f" : style === "puppy" ? "#2b2b2b" : "#3a2b22";
+  const openness = Math.max(0, Math.min(openRatio / MOUTH_BIG_SMILE_RATIO, 1.3));
+  const rx = faceW * 0.09;
+  const ry = Math.max(faceW * 0.014, faceW * (0.016 + openness * 0.09));
+  ctx.save();
+  ctx.translate(mouthCenter.x, mouthCenter.y);
+  ctx.rotate(roll);
+  ctx.fillStyle = mouthColor;
+  ellipse(ctx, 0, 0, rx, ry);
+  if (openness > 0.5) {
+    ctx.fillStyle = "rgba(255,255,255,0.45)";
+    ellipse(ctx, 0, ry * 0.3, rx * 0.45, ry * 0.35);
+  }
+  ctx.restore();
+}
+
+// 활짝 웃을 때 팡 터지는 반짝이 알갱이 만들기
+function spawnSparkleBurst(x, y, faceW) {
+  const n = 10;
+  const colors = ["#ffe08a", "#ff9fc9", "#9fe3ff", "#fff6cf"];
+  for (let i = 0; i < n; i++) {
+    const angle = (Math.PI * 2 * i) / n + Math.random() * 0.4;
+    const speed = faceW * (0.35 + Math.random() * 0.35);
+    sparkles.push({
+      x,
+      y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      size: faceW * (0.035 + Math.random() * 0.03),
+      color: colors[i % colors.length],
+      startTime: performance.now(),
+    });
+  }
+}
+
+// 반짝이 알갱이 그리기 + 수명 다한 것 정리
+function drawSparkles(ctx, now) {
+  if (!sparkles.length) return;
+  sparkles = sparkles.filter((p) => now - p.startTime < SPARKLE_LIFE_MS);
+  for (const p of sparkles) {
+    const t = (now - p.startTime) / SPARKLE_LIFE_MS;
+    const x = p.x + p.vx * t;
+    const y = p.y + p.vy * t - p.size * 4 * t * (1 - t); // 살짝 붕 떴다 가라앉는 곡선
+    const alpha = 1 - t;
+    const size = p.size * (1 - t * 0.3);
+    const g = ctx.createRadialGradient(x, y, 0, x, y, size);
+    g.addColorStop(0, p.color);
+    g.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.save();
+    ctx.globalAlpha = Math.max(alpha, 0);
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(x, y, size, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
   }
 }
 
@@ -412,4 +499,6 @@ export function stopMirror(videoEl, canvasEl) {
   lastFaces = null;
   lastVideoTime = -1;
   callState = "standby";
+  mouthState = [];
+  sparkles = [];
 }
