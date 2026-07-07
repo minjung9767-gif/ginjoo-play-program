@@ -6,7 +6,7 @@ import {
   FilesetResolver,
 } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.20/vision_bundle.mjs";
 
-import { playCallMusic, stopCallMusic, playDoorOpen, playPeekaboo } from "../audio.js";
+import { playCallMusic, stopCallMusic, playDoorOpen } from "../audio.js";
 
 const WASM_PATH =
   "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.20/wasm";
@@ -25,17 +25,14 @@ const SMILE_BURST_COOLDOWN_MS = 1200; // 반짝이 재발동 최소 간격
 const SPARKLE_LIFE_MS = 650; // 반짝이 한 알갱이가 사라지기까지 시간
 const BURST_KINDS = ["sparkle", "heart", "star"]; // 매번 랜덤하게 골라서 지루하지 않게
 const REACT_DURATION_MS = 600; // 활짝 웃을 때 스티커가 통통 튀고 귀가 흔들리는 시간
-const STREAK_WINDOW_MS = 6000; // 이 시간 안에 또 활짝 웃으면 콤보로 이어짐
-const STREAK_TARGET = 3; // 콤보가 이만큼 쌓이면 화면 가득 큰 축하
 
 let faceLandmarker = null;
 let rafId = null;
 let lastVideoTime = -1;
 let lastFaces = null;
 let lastSeenAt = 0;
-let mouthState = []; // 얼굴별 입 반응 상태 (쿨다운·통통튀기·콤보)
+let mouthState = []; // 얼굴별 입 반응 상태 (쿨다운·통통튀기)
 let sparkles = []; // 활짝 웃을 때 팡 터지는 반짝이 알갱이들
-let celebrateEl = null; // 콤보 달성 시 뜨는 큰 축하 화면
 
 let callState = "standby"; // standby | connecting | incall
 let connectTimer = null;
@@ -267,8 +264,7 @@ function drawStickers(ctx, canvas, lm, faceIndex, now) {
   const openRatio = dist(mouthTop, mouthBottom) / eyeDist;
 
   const st =
-    mouthState[faceIndex] ||
-    (mouthState[faceIndex] = { lastBurstAt: 0, reactUntil: 0, streakCount: 0, lastStreakAt: 0 });
+    mouthState[faceIndex] || (mouthState[faceIndex] = { lastBurstAt: 0, reactUntil: 0 });
 
   if (openRatio > MOUTH_BIG_SMILE_RATIO && now - st.lastBurstAt > SMILE_BURST_COOLDOWN_MS) {
     const kind = BURST_KINDS[(Math.random() * BURST_KINDS.length) | 0];
@@ -276,14 +272,6 @@ function drawStickers(ctx, canvas, lm, faceIndex, now) {
     playDoorOpen(); // 반짝이 소리 대신, 확실히 화려하고 다른 소리로
     st.lastBurstAt = now;
     st.reactUntil = now + REACT_DURATION_MS;
-
-    // 짧은 시간 안에 여러 번 활짝 웃으면 콤보로 쳐서 큰 축하로 이어짐
-    st.streakCount = now - st.lastStreakAt < STREAK_WINDOW_MS ? st.streakCount + 1 : 1;
-    st.lastStreakAt = now;
-    if (st.streakCount >= STREAK_TARGET) {
-      celebrateBigSmile();
-      st.streakCount = 0;
-    }
   }
 
   // 반응 중이면(방금 활짝 웃었으면) 스티커가 통통 튀고 귀가 살랑살랑
@@ -426,38 +414,6 @@ function drawParticle(ctx, kind, x, y, size, color, alpha) {
   ctx.restore();
 }
 
-// 🎉 콤보(짧은 시간 안에 여러 번 활짝 웃기) 달성! 화면 가득 큰 축하
-// 딩동 현관문 놀이의 "열렸다!" 축하 화면과 같은 스타일을 그대로 재사용
-function celebrateBigSmile() {
-  const gameEl = document.getElementById("game");
-  if (!gameEl) return;
-  playPeekaboo(); // 매번 나는 소리(딩동)와 확실히 구분되는, 더 신나는 소리
-  const EMOJIS = ["🎉", "🌟", "✨", "🥳", "🎊"];
-  const MSGS = ["우와!!", "최고야!", "신난다!", "짱이야!"];
-  celebrateEl = document.createElement("div");
-  celebrateEl.className = "keypad-celebrate";
-  celebrateEl.innerHTML =
-    `<div class="c-emoji">${EMOJIS[(Math.random() * EMOJIS.length) | 0]}</div>` +
-    `<div class="c-text">${MSGS[(Math.random() * MSGS.length) | 0]}</div>`;
-  gameEl.appendChild(celebrateEl);
-  celebrateEl.addEventListener("animationend", () => { celebrateEl && celebrateEl.remove(); celebrateEl = null; }, { once: true });
-  setTimeout(() => { if (celebrateEl) { celebrateEl.remove(); celebrateEl = null; } }, 2300);
-  screenStarBurst();
-}
-
-// 화면 곳곳에 별이 팡팡 (딩동 현관문 놀이와 같은 효과 재사용)
-function screenStarBurst() {
-  const STARS = ["⭐", "✨", "🎉", "🌟", "🎊"];
-  for (let k = 0; k < 12; k++) {
-    const s = document.createElement("span");
-    s.className = "sparkle";
-    s.textContent = STARS[(Math.random() * STARS.length) | 0];
-    s.style.left = `${window.innerWidth * (0.15 + Math.random() * 0.7)}px`;
-    s.style.top = `${window.innerHeight * (0.15 + Math.random() * 0.6)}px`;
-    document.body.appendChild(s);
-    s.addEventListener("animationend", () => s.remove(), { once: true });
-  }
-}
 
 // 볼터치 (양 볼에 발그레한 분홍 원)
 function drawCheeks(ctx, nose, right, up, faceW, faceH) {
@@ -617,8 +573,6 @@ export function stopMirror(videoEl, canvasEl) {
     const ctx = canvasEl.getContext("2d");
     ctx.clearRect(0, 0, canvasEl.width, canvasEl.height);
   }
-  document.querySelectorAll(".keypad-celebrate, .sparkle").forEach((el) => el.remove());
-  celebrateEl = null;
   lastFaces = null;
   lastVideoTime = -1;
   callState = "standby";
