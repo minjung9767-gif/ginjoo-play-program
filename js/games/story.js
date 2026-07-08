@@ -14,7 +14,7 @@ import {
 import { isMuted } from "../audio.js";
 
 // 녹음 목소리별 재생 음량 (엄마=100% 기준, 아빠 녹음이 조금 커서 낮춰 균형 맞춤)
-const VOICE_VOLUME = { 아빠: 0.65 };
+const VOICE_VOLUME = { 아빠: 0.55 };
 
 let wrapEl = null;
 let contentEl = null;
