@@ -180,6 +180,16 @@ function startRandom() {
   beginStory(playlist[0]);
 }
 
+// 랜덤 재생 중 "다음 이야기" 버튼: 지금 이야기를 멈추고 바로 다음 이야기로
+function skipToNextStory() {
+  if (!running || !randomMode) return;
+  stopSpeech();
+  stopRecorded();
+  paused = false;
+  stalledNext = -1;
+  playNextInPlaylist();
+}
+
 // 한 편이 끝나면 목록의 다음 편으로. 다 돌면 다시 섞어서 계속 (틀어놓기용)
 function playNextInPlaylist() {
   playIdx++;
@@ -216,7 +226,10 @@ function beginStory(st) {
     '<div class="story-controls">' +
     '  <button class="story-ctrl story-back" aria-label="다른 이야기 고르기" title="다른 이야기"><span class="ctrl-ico">📚</span><span class="ctrl-cap">다른 이야기</span></button>' +
     '  <button class="story-ctrl story-pause" aria-label="멈춤/이어읽기" title="멈춤/이어읽기"><span class="ctrl-ico">⏸</span></button>' +
-    (randomMode ? '  <span class="story-random-chip">🎲 랜덤 재생 중</span>' : "") +
+    (randomMode
+      ? '  <button class="story-ctrl story-nextstory" aria-label="다음 이야기" title="다음 이야기"><span class="ctrl-ico">⏭️</span><span class="ctrl-cap">다음 이야기</span></button>' +
+        '  <span class="story-random-chip">🎲 랜덤 재생 중</span>'
+      : "") +
     "</div>" +
     '<button class="story-nav story-prev" aria-label="이전 장면">❮</button>' +
     '<button class="story-nav story-next" aria-label="다음 장면">❯</button>' +
@@ -248,6 +261,15 @@ function beginStory(st) {
     e.stopPropagation();
     togglePause();
   });
+  // 랜덤 재생 중에만 있는 "다음 이야기" 버튼 (다른 이야기로 건너뛰기)
+  const nextStoryBtn = stageEl.querySelector(".story-nextstory");
+  if (nextStoryBtn) {
+    nextStoryBtn.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      skipToNextStory();
+    });
+  }
   // 좌우 이전/다음 화살표
   stageEl.querySelector(".story-prev").addEventListener("pointerdown", (e) => {
     e.preventDefault();
