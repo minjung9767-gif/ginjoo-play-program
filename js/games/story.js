@@ -227,10 +227,11 @@ function beginStory(st) {
     '  <button class="story-ctrl story-back" aria-label="다른 이야기 고르기" title="다른 이야기"><span class="ctrl-ico">📚</span><span class="ctrl-cap">다른 이야기</span></button>' +
     '  <button class="story-ctrl story-pause" aria-label="멈춤/이어읽기" title="멈춤/이어읽기"><span class="ctrl-ico">⏸</span></button>' +
     (randomMode
-      ? '  <button class="story-ctrl story-nextstory" aria-label="다음 이야기" title="다음 이야기"><span class="ctrl-ico">⏭️</span><span class="ctrl-cap">다음 이야기</span></button>' +
-        '  <span class="story-random-chip">🎲 랜덤 재생 중</span>'
+      ? '  <button class="story-ctrl story-nextstory" aria-label="다음 이야기" title="다음 이야기"><span class="ctrl-ico">⏭️</span><span class="ctrl-cap">다음 이야기</span></button>'
       : "") +
     "</div>" +
+    // 🎲 랜덤 재생 중 표시: 버튼이 아니라 '상태 라벨'이므로 맨 위 가운데에 은은하게
+    (randomMode ? '<div class="story-random-label">🎲 랜덤 재생 중</div>' : "") +
     '<button class="story-nav story-prev" aria-label="이전 장면">❮</button>' +
     '<button class="story-nav story-next" aria-label="다음 장면">❯</button>' +
     '<div class="story-art"></div>' +

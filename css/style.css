@@ -655,18 +655,21 @@ html, body {
 .story-random-btn .rnd-txt { font-size: clamp(1.2rem, 4vmin, 2rem); }
 .story-random-btn .rnd-sub { font-size: clamp(0.72rem, 2.1vmin, 1.05rem); color: #6b4418; }
 
-/* 랜덤 재생 중 표시 (읽기 화면) */
-.story-random-chip {
-  display: flex;
-  align-items: center;
-  height: clamp(48px, 8.5vmin, 68px);
-  padding: 0 clamp(12px, 2.2vmin, 18px);
+/* 🎲 랜덤 재생 중 '상태 라벨' — 버튼이 아니라 정보 표시라, 맨 위 가운데에 은은하게 */
+.story-random-label {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 11;
+  padding: 5px 16px;
   border-radius: 999px;
-  background: rgba(255, 200, 120, 0.2);
-  border: 1px solid rgba(255, 200, 120, 0.45);
+  background: rgba(255, 255, 255, 0.08);
   color: #ffd79a;
-  font-size: clamp(0.9rem, 2.6vmin, 1.2rem);
+  font-size: clamp(0.85rem, 2.4vmin, 1.15rem);
+  letter-spacing: 0.02em;
   white-space: nowrap;
+  pointer-events: none; /* 정보 표시일 뿐, 눌리지 않음 */
 }
 
 /* 읽기 화면 컨트롤 (왼쪽 위: 다른 이야기 / 멈춤) */
@@ -863,13 +866,8 @@ html, body {
   .story-controls { gap: 8px; }
   .story-ctrl { padding: 0; width: clamp(42px, 10.5vw, 56px); justify-content: center; }
   .story-ctrl .ctrl-cap { display: none; }
-  .story-random-chip {
-    padding: 0;
-    width: clamp(42px, 10.5vw, 56px);
-    justify-content: center;
-    font-size: 0; /* 텍스트 숨기고 아래 🎲 아이콘만 */
-  }
-  .story-random-chip::before { content: "🎲"; font-size: clamp(1.1rem, 4.4vw, 1.6rem); }
+  /* 폰에선 위 버튼 줄과 겹치지 않게 라벨을 버튼 아래 가운데로 */
+  .story-random-label { top: 74px; }
 }
 
 /* ===== 영상통화 ===== */
