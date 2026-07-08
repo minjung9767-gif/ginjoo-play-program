@@ -13,6 +13,9 @@ import {
 } from "../speech.js";
 import { isMuted } from "../audio.js";
 
+// 녹음 목소리별 재생 음량 (엄마=100% 기준, 아빠 녹음이 조금 커서 낮춰 균형 맞춤)
+const VOICE_VOLUME = { 아빠: 0.75 };
+
 let wrapEl = null;
 let contentEl = null;
 let stageEl = null;
@@ -433,12 +436,14 @@ function speakScene(sc) {
   return tts();
 }
 
-/* ===== 녹음 음성 파일 재생 (엄마 목소리) ===== */
+/* ===== 녹음 음성 파일 재생 (엄마·아빠 목소리) ===== */
 // 끝까지 재생하면 true, 파일이 없거나 재생에 실패하면 false (→ 자동 음성으로 대체)
 function playRecorded(src) {
   return new Promise((resolve) => {
     audioEl = new Audio(src);
     audioEl.muted = isMuted();
+    // 목소리별 음량 균형 (엄마 100% 기준, 아빠는 조금 작게)
+    audioEl.volume = (story && VOICE_VOLUME[story.voice]) || 1;
     audioEl.onended = () => {
       audioEl = null;
       resolve(true);
