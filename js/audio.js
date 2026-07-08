@@ -82,12 +82,12 @@ function playBell(freq, startTime, gainVal = 0.16) {
   });
 }
 
-// ===== 통화음악(콜라) : mp3 파일 (영상통화 화면에서만 사용) =====
+// ===== 통화 배경음악 : mp3 파일 (영상통화 대기중 화면에서만 사용) =====
 let callAudio = null;
 
 function ensureCall() {
   if (!callAudio) {
-    callAudio = new Audio("assets/cola-call.mp3");
+    callAudio = new Audio("assets/call-music.mp3");
     callAudio.loop = true;
     callAudio.volume = 0.8;
   }
