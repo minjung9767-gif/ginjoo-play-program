@@ -588,9 +588,9 @@ html, body {
 }
 .story-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: clamp(12px, 2.2vmin, 24px);
-  width: min(94vw, 1040px);
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(10px, 2vmin, 22px);
+  width: min(96vw, 1200px);
 }
 .story-card {
   display: flex;
