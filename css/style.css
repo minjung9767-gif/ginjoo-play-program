@@ -451,6 +451,15 @@ html, body {
 .doorbell-icon { font-size: clamp(2rem, 8vmin, 4rem); line-height: 1; }
 .doorbell-btn.ringing .doorbell-icon { animation: bell-shake 0.4s ease; }
 .doorbell-label { font-size: clamp(1.4rem, 5vmin, 2.6rem); font-weight: 400; }
+/* 폰(세로)에선 딩동 버튼을 가로로 더 길게 늘려 눌기 쉽게 */
+@media (orientation: portrait) and (max-width: 600px) {
+  .doorbell-btn {
+    width: min(80vw, 460px);
+    justify-content: center;
+    padding: 2vmin 6vmin;
+    gap: 3vmin;
+  }
+}
 @keyframes bell-shake {
   0%,100% { transform: rotate(0); }
   20% { transform: rotate(-18deg); }
