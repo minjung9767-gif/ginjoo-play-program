@@ -1,4 +1,4 @@
-// 💬 낱말놀이 단어 목록 (조금 어려운 새 낱말 — 어휘 늘리기용)
+// 💬 낱말놀이 단어 목록 (동물 카드)
 // - word : 화면에 보여줄 낱말(한글). 정답을 알려줄 때 글자로도 보여준다.
 // - art  : 크게 보여줄 이모지 그림
 // - audio: 엄마가 녹음한 음성 파일 경로. 파일이 있으면 그 목소리로, 없으면 자동 음성(TTS)으로 대체된다.
@@ -8,30 +8,26 @@
 //    녹음을 추가하려면: assets/words/ 에 아래 audio 경로대로 파일을 넣으면 자동으로 엄마 목소리로 바뀐다.
 
 export const WORDS = [
-  // 특별한 동물
-  { word: "공룡",   art: "🦕", audio: "assets/words/gongryong.m4a" },
+  { word: "강아지", art: "🐶", audio: "assets/words/gangaji.m4a" },
+  { word: "고양이", art: "🐱", audio: "assets/words/goyangi.m4a" },
+  { word: "토끼",   art: "🐰", audio: "assets/words/tokki.m4a" },
+  { word: "곰",     art: "🐻", audio: "assets/words/gom.m4a" },
+  { word: "사자",   art: "🦁", audio: "assets/words/saja.m4a" },
+  { word: "호랑이", art: "🐯", audio: "assets/words/horangi.m4a" },
+  { word: "코끼리", art: "🐘", audio: "assets/words/kokkiri.m4a" },
+  { word: "기린",   art: "🦒", audio: "assets/words/girin.m4a" },
+  { word: "원숭이", art: "🐵", audio: "assets/words/wonsungi.m4a" },
+  { word: "판다",   art: "🐼", audio: "assets/words/panda.m4a" },
+  { word: "돼지",   art: "🐷", audio: "assets/words/dwaeji.m4a" },
+  { word: "오리",   art: "🦆", audio: "assets/words/ori.m4a" },
+  { word: "병아리", art: "🐤", audio: "assets/words/byeongari.m4a" },
+  { word: "개구리", art: "🐸", audio: "assets/words/gaeguri.m4a" },
   { word: "펭귄",   art: "🐧", audio: "assets/words/penguin.m4a" },
-  { word: "문어",   art: "🐙", audio: "assets/words/muneo.m4a" },
-  { word: "나비",   art: "🦋", audio: "assets/words/nabi.m4a" },
+  { word: "여우",   art: "🦊", audio: "assets/words/yeou.m4a" },
+  { word: "물고기", art: "🐟", audio: "assets/words/mulgogi.m4a" },
   { word: "거북이", art: "🐢", audio: "assets/words/geobugi.m4a" },
-  { word: "부엉이", art: "🦉", audio: "assets/words/bueongi.m4a" },
-  // 채소·과일 (조금 어려운)
-  { word: "수박",     art: "🍉", audio: "assets/words/subak.m4a" },
-  { word: "옥수수",   art: "🌽", audio: "assets/words/oksusu.m4a" },
-  { word: "당근",     art: "🥕", audio: "assets/words/danggeun.m4a" },
-  { word: "버섯",     art: "🍄", audio: "assets/words/beoseot.m4a" },
-  { word: "가지",     art: "🍆", audio: "assets/words/gaji.m4a" },
-  { word: "브로콜리", art: "🥦", audio: "assets/words/beurokolli.m4a" },
-  // 탈것
-  { word: "소방차",   art: "🚒", audio: "assets/words/sobangcha.m4a" },
-  { word: "기차",     art: "🚂", audio: "assets/words/gicha.m4a" },
-  { word: "로켓",     art: "🚀", audio: "assets/words/roket.m4a" },
-  { word: "자전거",   art: "🚲", audio: "assets/words/jajeongeo.m4a" },
-  { word: "헬리콥터", art: "🚁", audio: "assets/words/hellikopteo.m4a" },
-  // 자연·사물
-  { word: "무지개",   art: "🌈", audio: "assets/words/mujigae.m4a" },
-  { word: "눈사람",   art: "⛄", audio: "assets/words/nunsaram.m4a" },
-  { word: "선물",     art: "🎁", audio: "assets/words/seonmul.m4a" },
+  { word: "나비",   art: "🦋", audio: "assets/words/nabi.m4a" },
+  { word: "공룡",   art: "🦕", audio: "assets/words/gongryong.m4a" },
 ];
 
 // 공용 문구(모든 단어에 함께 쓰이는 말). audio가 없으면 자동 음성으로 대체된다.
