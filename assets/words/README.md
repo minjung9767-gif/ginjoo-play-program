@@ -6,32 +6,31 @@
 ## 낱말 파일 (단어마다 하나)
 | 낱말 | 파일 이름 |
 |---|---|
-| 공 | `gong.m4a` |
-| 밥 | `bap.m4a` |
-| 빵 | `ppang.m4a` |
-| 물 | `mul.m4a` |
-| 문 | `mun.m4a` |
-| 불 | `bul.m4a` |
-| 컵 | `keop.m4a` |
-| 책 | `chaek.m4a` |
-| 우유 | `uyu.m4a` |
-| 신발 | `sinbal.m4a` |
-| 양말 | `yangmal.m4a` |
-| 모자 | `moja.m4a` |
-| 가방 | `gabang.m4a` |
-| 우산 | `usan.m4a` |
-| 칫솔 | `chissol.m4a` |
-| 비누 | `binu.m4a` |
-| 시계 | `sigye.m4a` |
-| 전화 | `jeonhwa.m4a` |
-| 과자 | `gwaja.m4a` |
-| 풍선 | `pungseon.m4a` |
+| 공룡 | `gongryong.m4a` |
+| 펭귄 | `penguin.m4a` |
+| 문어 | `muneo.m4a` |
+| 나비 | `nabi.m4a` |
+| 거북이 | `geobugi.m4a` |
+| 부엉이 | `bueongi.m4a` |
+| 수박 | `subak.m4a` |
+| 옥수수 | `oksusu.m4a` |
+| 당근 | `danggeun.m4a` |
+| 버섯 | `beoseot.m4a` |
+| 가지 | `gaji.m4a` |
+| 브로콜리 | `beurokolli.m4a` |
+| 소방차 | `sobangcha.m4a` |
+| 기차 | `gicha.m4a` |
+| 로켓 | `roket.m4a` |
+| 자전거 | `jajeongeo.m4a` |
+| 헬리콥터 | `hellikopteo.m4a` |
+| 무지개 | `mujigae.m4a` |
+| 눈사람 | `nunsaram.m4a` |
+| 선물 | `seonmul.m4a` |
 
 ## 공용 문구 파일 (선택 — 넣으면 이 부분도 엄마 목소리로)
 | 언제 | 파일 이름 | 녹음 내용(예) |
 |---|---|---|
 | 질문 뒷부분 | `_ask.m4a` | "어디 있어?" |
-| 따라 말하기 유도 | `_what.m4a` | "이게 뭐야?" |
 | 틀렸을 때 | `_retry.m4a` | "어? 다시 찾아볼까?" |
 | 칭찬 1 | `_good1.m4a` | "딩동! 잘했어요" |
 | 칭찬 2 | `_good2.m4a` | "우와, 잘 찾았어요" |

@@ -153,22 +153,14 @@ async function handleCorrect(el) {
 
   playSparkle();
   el.classList.add("correct-grow");
+  el.classList.add("reveal");                // 한글 낱말 글자 바로 보이기 + 통 튀는 느낌
   cards.forEach((c) => {
     if (c.el !== el) c.el.classList.add("faded");
     c.el.disabled = true;
   });
 
-  await say([PHRASES.what]);                 // "이게 뭐야?"
-  if (!running || t !== roundId) return;
-
-  await delay(2400);                         // 따라 말하는 틈 (아이가 말할 시간)
-  if (!running || t !== roundId) return;
-
-  el.classList.add("reveal");                // 한글 낱말 글자 보이기 + 통 튀는 느낌
-  await say([wordSeg(target, { proud: true })]); // 엄마 목소리로 "공!"
-  if (!running || t !== roundId) return;
-
-  await say([pickPraise()]);                 // "딩동! 잘했어요"
+  // 부드럽고 빠르게: 낱말을 한 번 또렷하게 알려주고 → 짧게 칭찬 → 다음
+  await say([wordSeg(target, { proud: true }), pickPraise()]); // "공룡!" + "딩동! 잘했어요"
   if (!running || t !== roundId) return;
 
   correctCount++;
@@ -177,7 +169,7 @@ async function handleCorrect(el) {
     if (!running || t !== roundId) return;
   }
 
-  await delay(700);
+  await delay(500);
   if (!running || t !== roundId) return;
   nextRound();
 }
