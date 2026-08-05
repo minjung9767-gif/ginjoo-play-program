@@ -4,7 +4,7 @@
 // - 녹음 파일(assets/words/…)이 있으면 그 목소리로, 없으면 자동 음성(TTS)으로 대체된다.
 import { WORDS, PHRASES } from "../words.js";
 import { speakText, stopSpeech, ttsSupported } from "../speech.js";
-import { isMuted, playCorrect, playPop, playPeekaboo } from "../audio.js";
+import { isMuted, playCorrect, playPop, playPeekaboo, resumeAudio } from "../audio.js";
 
 let wrapEl = null;
 let cardsEl = null;
@@ -14,7 +14,7 @@ let running = false;
 
 let cards = [];          // 현재 화면의 카드 두 개 { el, word }
 let target = null;       // 이번 문제의 정답 단어
-let lastTargetIdx = -1;  // 바로 전 정답(연속으로 같은 단어가 안 나오게)
+let lastTargetWord = ""; // 바로 전 정답 낱말(연속으로 같은 게 안 나오게)
 let correctCount = 0;
 
 let roundId = 0;         // 문제가 바뀌면 +1 → 지난 문제의 진행을 무효화
@@ -22,6 +22,12 @@ let sayId = 0;           // 말하기 세션 번호 → 아이가 탭하면 지�
 let busy = false;        // 정답 처리 애니메이션 중이면 탭 무시
 let audioEl = null;      // 녹음 파일 재생용
 let keepAlive = null;    // 자동 음성이 도중에 멈추지 않게 주기적으로 깨워줌(크롬 버그 대응)
+let kickAudio = null;    // 탭할 때마다 오디오를 다시 깨움(iOS에서 자동음성 뒤 효과음 꺼짐 방지)
+
+// '잘 아는 낱말'은 카드에서 빼기 위한 기록 (기기에 저장 → 다음에 열어도 이어짐)
+const MASTER_THRESHOLD = 3; // 연속 이만큼 맞히면 '잘 안다'고 보고 카드에서 뺀다
+const MASTERY_KEY = "wordMastery";
+let mastery = {};        // { 낱말: 연속 정답 횟수 }
 
 export async function startWord(videoEl, canvasEl, onReady) {
   const gameEl = document.getElementById("game");
@@ -29,7 +35,8 @@ export async function startWord(videoEl, canvasEl, onReady) {
   running = true;
   busy = false;
   correctCount = 0;
-  lastTargetIdx = -1;
+  lastTargetWord = "";
+  mastery = loadMastery();
 
   wrapEl = document.createElement("div");
   wrapEl.className = "word-wrap";
@@ -58,6 +65,15 @@ export async function startWord(videoEl, canvasEl, onReady) {
     }, 4000);
   }
 
+  // 탭(사용자 제스처)마다 오디오를 다시 깨운다 → iOS에서 자동음성이 나온 뒤
+  // 효과음(Web Audio)이 꺼져버리는 현상을 막는다
+  kickAudio = () => {
+    try {
+      resumeAudio();
+    } catch (_) {}
+  };
+  document.addEventListener("pointerdown", kickAudio, true);
+
   if (onReady) onReady();
   nextRound();
 }
@@ -70,6 +86,10 @@ export function stopWord() {
   if (keepAlive) {
     clearInterval(keepAlive);
     keepAlive = null;
+  }
+  if (kickAudio) {
+    document.removeEventListener("pointerdown", kickAudio, true);
+    kickAudio = null;
   }
   stopSpeech();
   stopRecorded();
@@ -106,18 +126,46 @@ function nextRound() {
 }
 
 function pickTarget() {
-  let i = Math.floor(Math.random() * WORDS.length);
-  if (WORDS.length > 1) {
-    while (i === lastTargetIdx) i = Math.floor(Math.random() * WORDS.length);
+  // '잘 아는 낱말'(마스터)은 빼고, 아직 배우는 낱말 중에서 고른다
+  let pool = WORDS.filter((w) => !isMastered(w));
+  if (pool.length === 0) {
+    // 20개를 다 마스터했으면 처음부터 다시 (진행 초기화 후 계속 놀 수 있게)
+    mastery = {};
+    saveMastery();
+    pool = WORDS.slice();
   }
-  lastTargetIdx = i;
-  return WORDS[i];
+  let choice = pool[Math.floor(Math.random() * pool.length)];
+  if (pool.length > 1) {
+    while (choice.word === lastTargetWord) {
+      choice = pool[Math.floor(Math.random() * pool.length)];
+    }
+  }
+  lastTargetWord = choice.word;
+  return choice;
 }
 
+// 딴 그림(오답 후보)은 전체에서 아무거나 (마스터한 낱말도 '보여주기'용으로 나올 수 있음)
 function pickDistractor(tg) {
   let d = tg;
   while (d === tg) d = WORDS[Math.floor(Math.random() * WORDS.length)];
   return d;
+}
+
+/* ===== '잘 아는 낱말' 기록 (연속 정답 횟수) ===== */
+function isMastered(w) {
+  return (mastery[w.word] || 0) >= MASTER_THRESHOLD;
+}
+function loadMastery() {
+  try {
+    return JSON.parse(localStorage.getItem(MASTERY_KEY)) || {};
+  } catch (_) {
+    return {};
+  }
+}
+function saveMastery() {
+  try {
+    localStorage.setItem(MASTERY_KEY, JSON.stringify(mastery));
+  } catch (_) {}
 }
 
 /* ===== 카드 두 개 그리기 ===== */
@@ -151,6 +199,10 @@ async function handleCorrect(el) {
   interrupt();
   const t = roundId;
 
+  // 이 낱말의 '연속 정답' 횟수 +1 → 기준값에 닿으면 다음부터 카드에서 빠진다
+  mastery[target.word] = Math.min(MASTER_THRESHOLD, (mastery[target.word] || 0) + 1);
+  saveMastery();
+
   playCorrect();                             // 새 정답 효과음
   el.classList.add("correct-grow");
   el.classList.add("reveal");                // 한글 낱말 글자 바로 보이기 + 통 튀는 느낌
@@ -176,6 +228,11 @@ async function handleCorrect(el) {
 
 function handleWrong(el) {
   interrupt();
+  // 정답을 못 찾았으니 그 낱말의 '연속 정답'은 0으로 (계속 배우도록 남겨둠)
+  if (target) {
+    mastery[target.word] = 0;
+    saveMastery();
+  }
   playPop();
   el.classList.remove("wiggle");
   void el.offsetWidth; // 애니메이션 재시작
