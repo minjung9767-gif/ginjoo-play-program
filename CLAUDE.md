@@ -75,7 +75,7 @@
 | `js/games/mirror.js` | 🪞 매직 거울 (완성된 놀이) |
 | `js/games/motion.js` | 움직임 마법 (준비 중) |
 | `js/games/keypad.js` | 키패드 놀이 (준비 중) |
-| `assets/` | 음원 파일(`call-music.mp3`=영상통화 배경음악, `donyo.mp3`) 등 |
+| `assets/` | 음원 파일(`call-music.mp3`=영상통화 배경음악) 등 |
 
 ## 🔑 설정 / 환경변수
 
