@@ -21,6 +21,7 @@ let roundId = 0;         // 문제가 바뀌면 +1 → 지난 문제의 진행�
 let sayId = 0;           // 말하기 세션 번호 → 아이가 탭하면 지금 말하던 걸 끊는다
 let busy = false;        // 정답 처리 애니메이션 중이면 탭 무시
 let audioEl = null;      // 녹음 파일 재생용
+let keepAlive = null;    // 자동 음성이 도중에 멈추지 않게 주기적으로 깨워줌(크롬 버그 대응)
 
 export async function startWord(videoEl, canvasEl, onReady) {
   const gameEl = document.getElementById("game");
@@ -47,6 +48,16 @@ export async function startWord(videoEl, canvasEl, onReady) {
   cardsEl = wrapEl.querySelector(".word-cards");
   celebrateEl = wrapEl.querySelector(".word-celebrate");
 
+  // 크롬 등에서 자동 음성이 몇 초 뒤 저절로 멈추는 걸 막는다
+  if ("speechSynthesis" in window) {
+    keepAlive = setInterval(() => {
+      try {
+        if (!speechSynthesis.speaking && !speechSynthesis.pending) return;
+        speechSynthesis.resume();
+      } catch (_) {}
+    }, 4000);
+  }
+
   if (onReady) onReady();
   nextRound();
 }
@@ -56,6 +67,10 @@ export function stopWord() {
   roundId++;
   sayId++;
   busy = false;
+  if (keepAlive) {
+    clearInterval(keepAlive);
+    keepAlive = null;
+  }
   stopSpeech();
   stopRecorded();
   const gameEl = document.getElementById("game");
@@ -203,27 +218,70 @@ async function celebrate() {
 }
 
 /* ===== 말하기: 녹음 파일이 있으면 그걸, 없으면 자동 음성(TTS) =====
-   segList: [{ audio?, text?, rate?, volume? }] 를 차례로 재생 */
+   segList: [{ audio?, text?, rate?, volume? }] 를 차례로 재생.
+   ⚠️ 일부 브라우저는 자동 음성(TTS)이 '끝났다'는 신호를 안 줘서 그대로 멈출 수 있다.
+      그래서 모든 재생은 '최대 대기 시간'을 두고, 시간이 지나면 무조건 다음으로 넘어간다. */
 async function say(segList) {
   const id = ++sayId;
   for (const seg of segList) {
     if (!seg) continue;
     if (!running || id !== sayId) return false;
+    let played = false;
     if (seg.audio) {
-      const ok = await playRecorded(seg.audio, seg.volume);
+      // 녹음 파일: 재생 끝나면 넘어감(안전을 위해 최대 10초까지만 기다림)
+      const r = await withTimeout(playRecorded(seg.audio, seg.volume), 10000);
       if (!running || id !== sayId) return false;
-      if (ok) continue; // 녹음 재생 성공 → 다음 조각으로
+      played = r === true;
     }
-    if (seg.text != null && ttsSupported()) {
-      await speakText(seg.text, {
-        rate: seg.rate != null ? seg.rate : 0.9,
-        volume: seg.volume != null ? seg.volume : 1,
-        muted: isMuted,
-      });
+    if (!played && seg.text != null && ttsSupported()) {
+      // 자동 음성: 끝 신호를 못 받아도 예상 시간이 지나면 다음으로 (멈춤 방지)
+      await withTimeout(
+        speakText(seg.text, {
+          rate: seg.rate != null ? seg.rate : 0.9,
+          volume: seg.volume != null ? seg.volume : 1,
+          muted: isMuted,
+        }),
+        estimateSpeechMs(seg.text)
+      );
       if (!running || id !== sayId) return false;
     }
   }
   return true;
+}
+
+// 프라미스가 끝나거나, ms가 지나면(둘 중 먼저) 넘어간다 (자동 음성 멈춤 방지용 안전장치)
+function withTimeout(promise, ms) {
+  return new Promise((resolve) => {
+    let settled = false;
+    const t = setTimeout(() => {
+      if (!settled) {
+        settled = true;
+        resolve("timeout");
+      }
+    }, ms);
+    Promise.resolve(promise).then(
+      (v) => {
+        if (!settled) {
+          settled = true;
+          clearTimeout(t);
+          resolve(v);
+        }
+      },
+      () => {
+        if (!settled) {
+          settled = true;
+          clearTimeout(t);
+          resolve("error");
+        }
+      }
+    );
+  });
+}
+
+// 글자 길이로 자동 음성 예상 시간(ms) 대략 계산 (짧은 낱말·문구용)
+function estimateSpeechMs(text) {
+  const len = text ? text.length : 0;
+  return Math.min(6000, 900 + len * 180);
 }
 
 // 지금 말하던 것을 즉시 끊는다 (아이가 탭했을 때 등)
