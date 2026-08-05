@@ -1,0 +1,23 @@
+{
+  "name": "긴주 놀이터 🎈",
+  "short_name": "긴주 놀이터",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "background_color": "#d7eaff",
+  "theme_color": "#a9e3f7",
+  "icons": [
+    {
+      "src": "assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
