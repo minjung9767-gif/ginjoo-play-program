@@ -487,6 +487,23 @@ function showEnd() {
     playNextInPlaylist();
     return;
   }
+  // 하나만 골라 시작했더라도, 끝나면 랜덤으로 다른 이야기를 계속 이어서 들려줌
+  const recorded = STORIES.filter((s) => s.voice);
+  if (recorded.length) {
+    const finishedId = story && story.id;
+    playlist = shuffle(recorded);
+    // 방금 끝난 이야기가 바로 또 나오지 않도록 (같으면 뒤의 다른 이야기와 자리 교체)
+    if (playlist.length > 1 && playlist[0].id === finishedId) {
+      const swapWith = 1 + Math.floor(Math.random() * (playlist.length - 1));
+      [playlist[0], playlist[swapWith]] = [playlist[swapWith], playlist[0]];
+    }
+    lastRandomStartId = playlist[0].id;
+    playIdx = 0;
+    randomMode = true;
+    beginStory(playlist[0]);
+    return;
+  }
+  // (녹음된 이야기가 하나도 없을 때만) 조용한 끝 화면
   sceneToken++;
   story = null;
   paused = false;
