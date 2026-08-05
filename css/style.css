@@ -1010,9 +1010,9 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: center;       /* 가운데 정렬 후 아래 여백을 더 줘 살짝 위로 올림 */
   overflow: hidden;
-  padding: 4vmin;
+  padding: clamp(28px, 5vh, 60px) 4vmin clamp(60px, 14vh, 150px);
 }
 /* 떠다니는 물방울 장식 (홈과 같은 느낌) */
 .word-bubbles { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
@@ -1138,18 +1138,18 @@ html, body {
   100% { transform: translateY(-115vh) scale(1.1) rotate(40deg); opacity: 0; }
 }
 
-/* 폰 세로: 두 카드가 잘리지 않고 한 화면에 나란히 들어오도록 줄임 */
+/* 폰 세로: 그림을 더 크게(아기가 잘 보이게), 질문은 위쪽에 */
 @media (orientation: portrait) and (max-width: 600px) {
-  .word-wrap { padding: 3vw; }
+  .word-wrap { padding: clamp(24px, 4vh, 50px) 2.5vw clamp(70px, 18vh, 200px); }
   .word-question {
-    font-size: clamp(1.5rem, 6.5vw, 2.6rem);
-    margin-bottom: clamp(10px, 3vh, 26px);
+    font-size: clamp(1.6rem, 7vw, 2.8rem);
+    margin-bottom: clamp(14px, 4vh, 40px);
   }
   .word-cards { gap: 3vw; }
   .word-card {
-    width: clamp(120px, 40vw, 220px);
-    height: clamp(120px, 40vw, 220px);
-    border-radius: 26px;
+    width: clamp(140px, 44vw, 270px);
+    height: clamp(140px, 44vw, 270px);
+    border-radius: 28px;
   }
-  .wc-emoji { font-size: clamp(3rem, 18vw, 6rem); }
+  .wc-emoji { font-size: clamp(3.4rem, 23vw, 8rem); }
 }

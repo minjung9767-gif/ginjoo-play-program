@@ -114,60 +114,48 @@ export function playSparkle() {
   notes.forEach((f, i) => playBell(f, now + i * 0.08, 0.2));
 }
 
-// 낱말놀이 정답! "뾰로롱↗ 통통통 반짝" (놀이터의 다른 효과음과 겹치지 않는 새 소리)
+// 낱말놀이 정답! 오르골(뮤직박스) 같은 따뜻한 "딩~" 한 음.
+// (게임 음악처럼 여러 음이 주르륵 올라가지 않고, 아기 장난감처럼 포근한 한 방울 소리)
 export function playCorrect() {
   if (!ctx || muted) return;
   wake();
   const now = ctx.currentTime;
+  const freq = 587.33; // 레(D5) — 부드럽고 포근한 높이
+  const dur = 1.0;
 
-  // 1) 밝게 위로 뿅 (사인 글리산도)
-  const w = ctx.createOscillator();
-  const wg = ctx.createGain();
-  w.type = "sine";
-  w.frequency.setValueAtTime(400, now);
-  w.frequency.exponentialRampToValueAtTime(780, now + 0.12);
-  wg.gain.setValueAtTime(0.0001, now);
-  wg.gain.exponentialRampToValueAtTime(0.2, now + 0.02);
-  wg.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
-  w.connect(wg);
-  wg.connect(masterGain);
-  w.start(now);
-  w.stop(now + 0.18);
-
-  // 2) 통통 튀어 오르는 3음 (플럭 느낌: 삼각파, 짧은 여운)
-  const arps = [
-    { f: 659.25, t: 0.13 }, // 미
-    { f: 830.61, t: 0.22 }, // 솔#
-    { f: 1046.5, t: 0.31 }, // 도↑
+  // 오르골/실로폰 느낌: 기음 + 부드러운 배음 몇 개를 '동시에' 울려 한 음처럼 들리게
+  const partials = [
+    { mult: 1, g: 1.0 },
+    { mult: 2, g: 0.35 },
+    { mult: 3.01, g: 0.12 }, // 살짝 종/오르골 느낌
+    { mult: 4.2, g: 0.05 },
   ];
-  arps.forEach(({ f, t }) => {
+  partials.forEach((p) => {
     const o = ctx.createOscillator();
     const g = ctx.createGain();
-    o.type = "triangle";
-    o.frequency.value = f;
-    const s0 = now + t;
-    g.gain.setValueAtTime(0.0001, s0);
-    g.gain.exponentialRampToValueAtTime(0.22, s0 + 0.008);
-    g.gain.exponentialRampToValueAtTime(0.0001, s0 + 0.22);
+    o.type = "sine";
+    o.frequency.value = freq * p.mult;
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.exponentialRampToValueAtTime(0.24 * p.g, now + 0.006);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
     o.connect(g);
     g.connect(masterGain);
-    o.start(s0);
-    o.stop(s0 + 0.26);
+    o.start(now);
+    o.stop(now + dur + 0.05);
   });
 
-  // 3) 반짝 (아주 높은 짧은 핑)
-  const p = ctx.createOscillator();
-  const pg = ctx.createGain();
-  p.type = "sine";
-  p.frequency.value = 1568; // 솔↑↑
-  const ps = now + 0.34;
-  pg.gain.setValueAtTime(0.0001, ps);
-  pg.gain.exponentialRampToValueAtTime(0.16, ps + 0.006);
-  pg.gain.exponentialRampToValueAtTime(0.0001, ps + 0.2);
-  p.connect(pg);
-  pg.connect(masterGain);
-  p.start(ps);
-  p.stop(ps + 0.24);
+  // 한 옥타브 아래를 아주 살짝 더해 포근함(따뜻한 울림)만 보탠다
+  const b = ctx.createOscillator();
+  const bg = ctx.createGain();
+  b.type = "triangle";
+  b.frequency.value = freq / 2;
+  bg.gain.setValueAtTime(0.0001, now);
+  bg.gain.exponentialRampToValueAtTime(0.09, now + 0.012);
+  bg.gain.exponentialRampToValueAtTime(0.0001, now + dur * 0.8);
+  b.connect(bg);
+  bg.connect(masterGain);
+  b.start(now);
+  b.stop(now + dur);
 }
 
 // 비눗방울 터질 때 "퐁" 소리 (짧고 통통)
