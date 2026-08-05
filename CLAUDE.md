@@ -72,10 +72,13 @@
 | `js/camera.js` | 카메라 시작·정지 |
 | `js/audio.js` | 배경 음악 + 효과음 (Web Audio API) |
 | `js/coords.js` | 좌표 계산 보조 |
+| `js/speech.js` | 자동 음성(TTS) 엔진 — 글을 브라우저 내장 음성으로 읽어줌 |
 | `js/games/mirror.js` | 🪞 매직 거울 (완성된 놀이) |
+| `js/games/story.js` | 🌙 잠자리 동화 (완성) — 녹음/자동음성으로 동화 읽어주기 |
+| `js/games/word.js` + `js/words.js` | 💬 낱말놀이 (완성) — 그림 2개 중 고르기 + 따라 말하기 |
 | `js/games/motion.js` | 움직임 마법 (준비 중) |
 | `js/games/keypad.js` | 키패드 놀이 (준비 중) |
-| `assets/` | 음원 파일(`call-music.mp3`=영상통화 배경음악) 등 |
+| `assets/` | 음원 파일(`call-music.mp3`), 동화 녹음(`stories/`), 낱말 녹음(`words/`) 등 |
 
 ## 🔑 설정 / 환경변수
 

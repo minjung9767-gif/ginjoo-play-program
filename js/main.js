@@ -4,6 +4,7 @@ import { startMirror, stopMirror } from "./games/mirror.js";
 import { startMotion, stopMotion } from "./games/motion.js";
 import { startKeypad, stopKeypad } from "./games/keypad.js";
 import { startStory, stopStory } from "./games/story.js";
+import { startWord, stopWord } from "./games/word.js";
 import { resumeAudio, stopCallMusic, toggleMute, isMuted } from "./audio.js";
 
 const homeScreen = document.getElementById("home");
@@ -42,6 +43,13 @@ const GAMES = {
     needsCamera: false,
     loading: "",
     error: "앗, 동화책을 불러오지 못했어요. 🥲",
+  },
+  word: {
+    start: startWord,
+    stop: stopWord,
+    needsCamera: false,
+    loading: "",
+    error: "앗, 낱말놀이를 불러오지 못했어요. 🥲",
   },
 };
 

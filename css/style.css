@@ -996,3 +996,155 @@ html, body {
   margin-left: calc(clamp(70px, 16vmin, 120px) / -2);
   margin-top: 0;
 }
+
+/* ===== 💬 낱말놀이 ===== */
+#game.word-mode {
+  background:
+    radial-gradient(140% 70% at 50% -10%, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 45%),
+    linear-gradient(165deg, #9fdcff 0%, #bfeaf5 35%, #d7eaff 65%, #efe3ff 100%);
+}
+.word-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 4vmin;
+}
+/* 떠다니는 물방울 장식 (홈과 같은 느낌) */
+.word-bubbles { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+
+/* 질문 문구 (화면 위쪽 가운데) */
+.word-question {
+  position: absolute;
+  top: clamp(14px, 5vh, 54px);
+  left: 0; right: 0;
+  z-index: 2;
+  text-align: center;
+  font-family: "Jua", "Apple SD Gothic Neo", sans-serif;
+  font-size: clamp(1.7rem, 6vmin, 3.6rem);
+  color: #0a5e7a;
+  text-shadow: 0 2px 6px rgba(255,255,255,0.8);
+  padding: 0 4vmin;
+}
+
+/* 카드 두 개 */
+.word-cards {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: clamp(20px, 7vmin, 96px);
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
+}
+.word-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1vmin;
+  width: clamp(190px, 38vmin, 420px);
+  height: clamp(190px, 38vmin, 420px);
+  border: 1px solid rgba(255,255,255,0.65);
+  border-radius: 40px;
+  background: linear-gradient(160deg, rgba(255,255,255,0.6), rgba(255,255,255,0.3));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 12px 34px rgba(40,110,150,0.24), inset 0 1px 0 rgba(255,255,255,0.7);
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.3s ease, background 0.18s ease;
+}
+.word-card:active:not(:disabled) { transform: translateY(4px) scale(0.98); }
+.wc-emoji {
+  font-size: clamp(5.5rem, 22vmin, 15rem);
+  line-height: 1;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+}
+.wc-label {
+  font-family: "Jua", sans-serif;
+  font-size: clamp(1.6rem, 6vmin, 3.4rem);
+  color: #0a5e7a;
+  opacity: 0;                 /* 평소엔 숨김 → 정답 알려줄 때만 보임 */
+  transform: translateY(6px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+/* 정답: 커지고, 상대 카드는 흐리게 */
+.word-card.correct-grow {
+  transform: scale(1.1);
+  box-shadow: 0 18px 44px rgba(70,180,120,0.35), inset 0 1px 0 rgba(255,255,255,0.8);
+  background: linear-gradient(160deg, rgba(214,255,228,0.85), rgba(255,255,255,0.5));
+}
+.word-card.faded { opacity: 0.28; transform: scale(0.9); }
+.word-card.reveal .wc-label { opacity: 1; transform: translateY(0); }
+.word-card.reveal .wc-emoji { animation: wcPop 0.45s ease; }
+
+/* 오답: 살짝 좌우로 흔들 (야단 아님, 부드럽게) */
+.word-card.wiggle { animation: wcWiggle 0.45s ease; }
+
+@keyframes wcPop {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.16); }
+  100% { transform: scale(1); }
+}
+@keyframes wcWiggle {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-10px); }
+  50% { transform: translateX(10px); }
+  80% { transform: translateX(-6px); }
+}
+
+/* 칭찬 잔치 (별 반짝) */
+.word-celebrate {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  overflow: hidden;
+}
+.word-celebrate.hidden { display: none; }
+.wc-cheer {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: "Jua", sans-serif;
+  font-size: clamp(2.4rem, 9vmin, 5rem);
+  color: #ff8fab;
+  text-shadow: 0 3px 0 #fff, 0 6px 14px rgba(255,120,150,0.35);
+  animation: wcCheerPop 0.5s ease;
+}
+@keyframes wcCheerPop {
+  0% { transform: translate(-50%, -50%) scale(0.4); opacity: 0; }
+  60% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+.wc-star {
+  position: absolute;
+  bottom: -12vmin;
+  font-size: clamp(2rem, 6vmin, 3.4rem);
+  animation-name: wcStarUp;
+  animation-timing-function: ease-in;
+  animation-iteration-count: 1;
+  will-change: transform, opacity;
+}
+@keyframes wcStarUp {
+  0% { transform: translateY(0) scale(0.7) rotate(0deg); opacity: 0; }
+  15% { opacity: 1; }
+  100% { transform: translateY(-115vh) scale(1.1) rotate(40deg); opacity: 0; }
+}
+
+/* 폰 세로: 카드가 한 화면에 나란히 들어오도록 살짝 줄임 */
+@media (orientation: portrait) and (max-width: 600px) {
+  .word-cards { gap: clamp(12px, 4vw, 28px); }
+  .word-card {
+    width: clamp(140px, 43vw, 230px);
+    height: clamp(140px, 43vw, 230px);
+    border-radius: 30px;
+  }
+  .wc-emoji { font-size: clamp(3.6rem, 20vw, 7rem); }
+}
