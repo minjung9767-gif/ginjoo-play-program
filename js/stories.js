@@ -180,4 +180,28 @@ export const STORIES = [
       { art: "🌙💤", audio: "assets/stories/ori/ori-12.m4a", text: "포근한 둥지에 백조들이 날개를 모으고 잠이 들었어요. 우리 긴주도 세상에 하나뿐인 예쁜 아기란다. 사랑해. 포근한 꿈 꾸자. 잘 자요." },
     ],
   },
+  {
+    id: "lion-mouse",
+    title: "사자와 생쥐",
+    kind: "이솝우화",
+    emoji: "🦁",
+    voice: "엄마",
+    // 엄마가 직접 녹음한 목소리로 읽어 준다 (파일이 없으면 자동 음성으로 대체)
+    scenes: [
+      { art: "🌳🦁", audio: "assets/stories/saja/saja-01.m4a", text: "깊고 깊은 숲속, 커다란 사자가 따뜻한 햇볕 아래에서 쿨쿨 낮잠을 자고 있었어요. 숲도 조용조용, 바람도 살랑살랑." },
+      { art: "🐭🌿", audio: "assets/stories/saja/saja-02.m4a", text: "그때 조그만 생쥐가 찍찍, 풀숲에서 놀다가 그만 사자 등 위로 쪼르르 올라갔어요. 사자가 눈을 슬며시 떴지요." },
+      { art: "🦁🤲", audio: "assets/stories/saja/saja-03.m4a", text: "커다란 앞발이 살포시 생쥐를 감쌌어요. 앗, 어떡해. 생쥐는 오들오들 떨었어요." },
+      { art: "🐭🙏", audio: "assets/stories/saja/saja-04.m4a", text: "사자님, 한 번만 살려 주세요. 언젠가 저도 꼭 은혜를 갚을게요. 생쥐가 조그만 목소리로 말했어요." },
+      { art: "🦁😊", audio: "assets/stories/saja/saja-05.m4a", text: "사자는 껄껄, 부드럽게 웃었어요. 요 작은 네가 나를 돕는다고? 그래도 마음이 착하구나. 그러고는 발을 살며시 들어 생쥐를 놓아 주었지요." },
+      { art: "🐭✨", audio: "assets/stories/saja/saja-06.m4a", text: "고맙습니다, 고맙습니다. 생쥐는 찍찍 인사하고 후다닥 풀숲으로 돌아갔어요." },
+      { art: "🌙🌿", audio: "assets/stories/saja/saja-07.m4a", text: "며칠이 지난 어느 밤이었어요. 사자가 숲을 거닐다가, 그만 사냥꾼이 쳐 놓은 밧줄 그물에 걸리고 말았어요." },
+      { art: "🦁🪢", audio: "assets/stories/saja/saja-08.m4a", text: "버둥버둥, 아무리 힘을 써도 밧줄은 점점 더 꽁꽁. 커다란 사자도 꼼짝할 수가 없었지요. 어흥, 누가 좀 도와줘요." },
+      { art: "🐭👂", audio: "assets/stories/saja/saja-09.m4a", text: "저 멀리서 생쥐가 그 소리를 들었어요. 어? 저건 사자님 목소리잖아. 생쥐는 한걸음에 후다닥 달려왔어요." },
+      { art: "🐭🪢", audio: "assets/stories/saja/saja-10.m4a", text: "걱정 마세요, 이제 제가 갚을 차례예요. 생쥐는 밧줄을 사각사각, 사각사각 갉기 시작했어요." },
+      { art: "✂️✨", audio: "assets/stories/saja/saja-11.m4a", text: "사각사각, 톡. 사각사각, 톡. 밧줄이 하나씩 끊어졌어요. 마침내 사자가 그물에서 쏙 빠져나왔지요." },
+      { art: "🦁💛", audio: "assets/stories/saja/saja-12.m4a", text: "고맙다, 작은 친구야. 몸집은 작아도 마음은 세상에서 제일 크구나. 사자가 다정하게 말했어요." },
+      { art: "🐭🦁", audio: "assets/stories/saja/saja-13.m4a", text: "그날부터 커다란 사자와 조그만 생쥐는 아주 좋은 친구가 되었어요. 서로 도우면 이렇게 든든하답니다." },
+      { art: "🌙💤", audio: "assets/stories/saja/saja-14.m4a", text: "작은 친구도, 큰 친구도 이제 코 잘 시간. 우리 긴주도 포근한 이불 덮고 코 자자. 잘 자요, 좋은 꿈 꾸렴." },
+    ],
+  },
 ];
