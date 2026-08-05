@@ -4,7 +4,7 @@
 // - 녹음 파일(assets/words/…)이 있으면 그 목소리로, 없으면 자동 음성(TTS)으로 대체된다.
 import { WORDS, PHRASES } from "../words.js";
 import { speakText, stopSpeech, ttsSupported } from "../speech.js";
-import { isMuted, playSparkle, playPop, playPeekaboo } from "../audio.js";
+import { isMuted, playCorrect, playPop, playPeekaboo } from "../audio.js";
 
 let wrapEl = null;
 let cardsEl = null;
@@ -151,7 +151,7 @@ async function handleCorrect(el) {
   interrupt();
   const t = roundId;
 
-  playSparkle();
+  playCorrect();                             // 새 정답 효과음
   el.classList.add("correct-grow");
   el.classList.add("reveal");                // 한글 낱말 글자 바로 보이기 + 통 튀는 느낌
   cards.forEach((c) => {
@@ -159,8 +159,8 @@ async function handleCorrect(el) {
     c.el.disabled = true;
   });
 
-  // 부드럽고 빠르게: 낱말을 한 번 또렷하게 알려주고 → 짧게 칭찬 → 다음
-  await say([wordSeg(target, { proud: true }), pickPraise()]); // "공룡!" + "딩동! 잘했어요"
+  // 부드럽고 빠르게: 낱말만 한 번 또렷하게 알려주고 바로 다음 (기다림 짧게)
+  await say([wordSeg(target, { proud: true })]); // "공룡!"
   if (!running || t !== roundId) return;
 
   correctCount++;
@@ -169,7 +169,7 @@ async function handleCorrect(el) {
     if (!running || t !== roundId) return;
   }
 
-  await delay(500);
+  await delay(250);
   if (!running || t !== roundId) return;
   nextRound();
 }

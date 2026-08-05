@@ -114,6 +114,62 @@ export function playSparkle() {
   notes.forEach((f, i) => playBell(f, now + i * 0.08, 0.2));
 }
 
+// 낱말놀이 정답! "뾰로롱↗ 통통통 반짝" (놀이터의 다른 효과음과 겹치지 않는 새 소리)
+export function playCorrect() {
+  if (!ctx || muted) return;
+  wake();
+  const now = ctx.currentTime;
+
+  // 1) 밝게 위로 뿅 (사인 글리산도)
+  const w = ctx.createOscillator();
+  const wg = ctx.createGain();
+  w.type = "sine";
+  w.frequency.setValueAtTime(400, now);
+  w.frequency.exponentialRampToValueAtTime(780, now + 0.12);
+  wg.gain.setValueAtTime(0.0001, now);
+  wg.gain.exponentialRampToValueAtTime(0.2, now + 0.02);
+  wg.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+  w.connect(wg);
+  wg.connect(masterGain);
+  w.start(now);
+  w.stop(now + 0.18);
+
+  // 2) 통통 튀어 오르는 3음 (플럭 느낌: 삼각파, 짧은 여운)
+  const arps = [
+    { f: 659.25, t: 0.13 }, // 미
+    { f: 830.61, t: 0.22 }, // 솔#
+    { f: 1046.5, t: 0.31 }, // 도↑
+  ];
+  arps.forEach(({ f, t }) => {
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = "triangle";
+    o.frequency.value = f;
+    const s0 = now + t;
+    g.gain.setValueAtTime(0.0001, s0);
+    g.gain.exponentialRampToValueAtTime(0.22, s0 + 0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001, s0 + 0.22);
+    o.connect(g);
+    g.connect(masterGain);
+    o.start(s0);
+    o.stop(s0 + 0.26);
+  });
+
+  // 3) 반짝 (아주 높은 짧은 핑)
+  const p = ctx.createOscillator();
+  const pg = ctx.createGain();
+  p.type = "sine";
+  p.frequency.value = 1568; // 솔↑↑
+  const ps = now + 0.34;
+  pg.gain.setValueAtTime(0.0001, ps);
+  pg.gain.exponentialRampToValueAtTime(0.16, ps + 0.006);
+  pg.gain.exponentialRampToValueAtTime(0.0001, ps + 0.2);
+  p.connect(pg);
+  pg.connect(masterGain);
+  p.start(ps);
+  p.stop(ps + 0.24);
+}
+
 // 비눗방울 터질 때 "퐁" 소리 (짧고 통통)
 export function playPop() {
   if (!ctx || muted) return;
