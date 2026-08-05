@@ -10,8 +10,11 @@
 - 다시 녹음 / 파일로 내려받기(안전 사본) / 불러오기 / 지우기
 
 ## 공개 주소
-머지 후 자동 배포되면:
-`https://minjung9767-gif.github.io/ginjoo-play-program/voice-book/`
+- **정식 주소 (Netlify, 공유용):** https://voice-book.netlify.app/
+- (참고) GitHub Pages 백업 주소: `https://minjung9767-gif.github.io/ginjoo-play-program/voice-book/`
+
+두 주소 모두 이 저장소 `main` 브랜치에 머지되면 자동으로 새로 배포된다.
+사람들에게 공유할 때는 **Netlify 주소**를 쓴다(계정 이름·저장소 이름이 안 드러남).
 
 폰에서 열고 **"홈 화면에 추가"** 하면 앱 아이콘처럼 쓸 수 있다.
 
