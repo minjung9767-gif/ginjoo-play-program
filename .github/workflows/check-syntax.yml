@@ -1,0 +1,41 @@
+name: JS 문법 검사
+
+# 이 프로젝트는 빌드 과정이 없어서, JS 파일에 오타(문법 오류)가 있으면
+# 그대로 배포돼 사이트가 하얗게 안 열릴 수 있습니다.
+# 그래서 main으로 합치기 전에 모든 .js 파일의 문법이 깨지지 않았는지 자동 검사합니다.
+on:
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: JS 파일 문법 검사 (node --check)
+        run: |
+          set -e
+          fail=0
+          # 모든 .js 파일을 하나씩 문법만 검사 (실행하지는 않음)
+          while IFS= read -r file; do
+            echo "검사: $file"
+            if ! node --check "$file"; then
+              fail=1
+            fi
+          done < <(find . -name '*.js' -not -path './node_modules/*')
+          if [ "$fail" -ne 0 ]; then
+            echo "❌ 문법 오류가 있는 JS 파일이 있어요. 위 로그를 확인하세요."
+            exit 1
+          fi
+          echo "✅ 모든 JS 파일 문법 OK"
