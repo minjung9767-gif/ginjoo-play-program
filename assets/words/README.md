@@ -1,31 +1,31 @@
 # 💬 낱말놀이 녹음 파일 넣는 곳
 
-낱말놀이에서 쓰는 **엄마 목소리 녹음 파일**을 여기에 넣습니다.
+낱말놀이(동물 카드)에서 쓰는 **엄마 목소리 녹음 파일**을 여기에 넣습니다.
 파일이 없으면 자동 음성(TTS)으로 대체되므로, 있는 것부터 하나씩 채워도 됩니다.
 
-## 낱말 파일 (단어마다 하나)
+## 낱말 파일 (동물마다 하나)
 | 낱말 | 파일 이름 |
 |---|---|
-| 공룡 | `gongryong.m4a` |
+| 강아지 | `gangaji.m4a` |
+| 고양이 | `goyangi.m4a` |
+| 토끼 | `tokki.m4a` |
+| 곰 | `gom.m4a` |
+| 사자 | `saja.m4a` |
+| 호랑이 | `horangi.m4a` |
+| 코끼리 | `kokkiri.m4a` |
+| 기린 | `girin.m4a` |
+| 원숭이 | `wonsungi.m4a` |
+| 판다 | `panda.m4a` |
+| 돼지 | `dwaeji.m4a` |
+| 오리 | `ori.m4a` |
+| 병아리 | `byeongari.m4a` |
+| 개구리 | `gaeguri.m4a` |
 | 펭귄 | `penguin.m4a` |
-| 문어 | `muneo.m4a` |
-| 나비 | `nabi.m4a` |
+| 여우 | `yeou.m4a` |
+| 물고기 | `mulgogi.m4a` |
 | 거북이 | `geobugi.m4a` |
-| 부엉이 | `bueongi.m4a` |
-| 수박 | `subak.m4a` |
-| 옥수수 | `oksusu.m4a` |
-| 당근 | `danggeun.m4a` |
-| 버섯 | `beoseot.m4a` |
-| 가지 | `gaji.m4a` |
-| 브로콜리 | `beurokolli.m4a` |
-| 소방차 | `sobangcha.m4a` |
-| 기차 | `gicha.m4a` |
-| 로켓 | `roket.m4a` |
-| 자전거 | `jajeongeo.m4a` |
-| 헬리콥터 | `hellikopteo.m4a` |
-| 무지개 | `mujigae.m4a` |
-| 눈사람 | `nunsaram.m4a` |
-| 선물 | `seonmul.m4a` |
+| 나비 | `nabi.m4a` |
+| 공룡 | `gongryong.m4a` |
 
 ## 공용 문구 파일 (선택 — 넣으면 이 부분도 엄마 목소리로)
 | 언제 | 파일 이름 | 녹음 내용(예) |
