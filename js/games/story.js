@@ -193,6 +193,23 @@ function skipToNextStory() {
   playNextInPlaylist();
 }
 
+// "다음 이야기" 버튼(오른쪽 아래): 언제 눌러도 다른 책으로 바로 넘어간다
+function goNextStory() {
+  if (!running || !STORIES.length) return;
+  stopSpeech();
+  stopRecorded();
+  paused = false;
+  stalledNext = -1;
+  // 랜덤 재생 중이면 목록의 다음 편으로, 아니면 지금 책만 빼고 아무 책이나
+  if (randomMode && playlist.length) {
+    playNextInPlaylist();
+    return;
+  }
+  let pool = STORIES.filter((s) => !story || s.id !== story.id);
+  if (!pool.length) pool = STORIES;
+  beginStory(pool[Math.floor(Math.random() * pool.length)]);
+}
+
 // 한 편이 끝나면 목록의 다음 편으로. 다 돌면 다시 섞어서 계속 (틀어놓기용)
 function playNextInPlaylist() {
   playIdx++;
@@ -226,13 +243,12 @@ function beginStory(st) {
   stageEl = document.createElement("div");
   stageEl.className = "story-stage";
   stageEl.innerHTML =
+    // 📚 책 고르기 = 왼쪽 위 (책 목록으로). 화면 터치로 멈추므로 중지 버튼은 없앰.
     '<div class="story-controls">' +
-    '  <button class="story-ctrl story-back" aria-label="다른 이야기 고르기" title="다른 이야기"><span class="ctrl-ico">📚</span><span class="ctrl-cap">다른 이야기</span></button>' +
-    '  <button class="story-ctrl story-pause" aria-label="멈춤/이어읽기" title="멈춤/이어읽기"><span class="ctrl-ico">⏸</span></button>' +
-    (randomMode
-      ? '  <button class="story-ctrl story-nextstory" aria-label="다음 이야기" title="다음 이야기"><span class="ctrl-ico">⏭️</span><span class="ctrl-cap">다음 이야기</span></button>'
-      : "") +
+    '  <button class="story-ctrl story-back" aria-label="책 고르기" title="책 고르기"><span class="ctrl-ico">📚</span><span class="ctrl-cap">책 고르기</span></button>' +
     "</div>" +
+    // ⏭️ 다음 이야기 = 오른쪽 아래 (대각선으로 멀리 둬서 실수로 같이 안 눌리게)
+    '<button class="story-ctrl story-nextstory" aria-label="다음 이야기" title="다음 이야기"><span class="ctrl-ico">⏭️</span><span class="ctrl-cap">다음 이야기</span></button>' +
     // 🎲 랜덤 재생 중 표시: 버튼이 아니라 '상태 라벨'이므로 맨 위 가운데에 은은하게
     (randomMode ? '<div class="story-random-label">🎲 랜덤 재생 중</div>' : "") +
     '<button class="story-nav story-prev" aria-label="이전 장면">❮</button>' +
@@ -260,20 +276,12 @@ function beginStory(st) {
     e.stopPropagation();
     renderPicker();
   });
-  stageEl.querySelector(".story-pause").addEventListener("pointerdown", (e) => {
+  // "다음 이야기" 버튼(오른쪽 아래) — 언제든 눌러 다른 책으로 바로 넘어감
+  stageEl.querySelector(".story-nextstory").addEventListener("pointerdown", (e) => {
     e.preventDefault();
     e.stopPropagation();
-    togglePause();
+    goNextStory();
   });
-  // 랜덤 재생 중에만 있는 "다음 이야기" 버튼 (다른 이야기로 건너뛰기)
-  const nextStoryBtn = stageEl.querySelector(".story-nextstory");
-  if (nextStoryBtn) {
-    nextStoryBtn.addEventListener("pointerdown", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      skipToNextStory();
-    });
-  }
   // 좌우 이전/다음 화살표
   stageEl.querySelector(".story-prev").addEventListener("pointerdown", (e) => {
     e.preventDefault();
