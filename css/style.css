@@ -714,9 +714,8 @@ html, body {
 }
 .story-ctrl .ctrl-cap { font-size: clamp(1.1rem, 3.2vmin, 1.6rem); text-shadow: 0 1px 3px rgba(0,0,0,0.4); }
 
-/* 📚 책 고르기 = 왼쪽 위 (은은한 파랑, 반투명으로 배경과 어우러지게) */
-.story-back { background: rgba(120, 180, 225, 0.26); }
-.story-back:active { background: rgba(120, 180, 225, 0.42); }
+/* 📖 책장 버튼: 오른쪽 홈/음소거와 동일한 동그란 아이콘 버튼(.ctrl-btn)을 재사용.
+   위치만 story-controls(왼쪽 위)가 잡아준다. */
 
 /* 좌우 이전/다음 화살표 (가장자리 세로 중앙) */
 .story-nav {

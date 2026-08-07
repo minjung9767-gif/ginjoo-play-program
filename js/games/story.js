@@ -229,7 +229,9 @@ function beginStory(st) {
     // 📚 책 고르기 = 왼쪽 위 (책 목록으로). 화면 터치로 멈추므로 중지/다음 버튼은 없앰.
     // (이야기가 끝나면 자동으로 다음 이야기가 이어져 재생된다)
     '<div class="story-controls">' +
-    '  <button class="story-ctrl story-back" aria-label="책장" title="책장"><span class="ctrl-ico">📚</span><span class="ctrl-cap">책장</span></button>' +
+    '  <button class="ctrl-btn story-back" aria-label="책장" title="책장">' +
+    '    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" aria-hidden="true"><path d="M12 6c-1.6-1.2-3.7-1.6-6-1.4v11.6c2.3-.2 4.4.2 6 1.4 1.6-1.2 3.7-1.6 6-1.4V4.6c-2.3-.2-4.4.2-6 1.4z"/><path d="M12 6v11.6"/></svg>' +
+    "  </button>" +
     "</div>" +
     // 🎲 랜덤 재생 중 표시: 버튼이 아니라 '상태 라벨'이므로 맨 위 가운데에 은은하게
     (randomMode ? '<div class="story-random-label">🎲 랜덤 재생 중</div>' : "") +
