@@ -708,21 +708,21 @@ html, body {
 }
 .story-ctrl:active { transform: scale(0.93); }
 .story-ctrl .ctrl-ico { font-size: clamp(1.5rem, 4.8vmin, 2.3rem); line-height: 1; }
-.story-ctrl .ctrl-cap { font-size: clamp(1.1rem, 3.2vmin, 1.6rem); }
+.story-ctrl .ctrl-cap { font-size: clamp(1.1rem, 3.2vmin, 1.6rem); text-shadow: 0 1px 3px rgba(0,0,0,0.4); }
 
-/* 📚 책 고르기 = 왼쪽 위 (파랑) */
-.story-back { background: rgba(74, 158, 210, 0.92); }
-.story-back:active { background: rgba(60, 140, 195, 1); }
+/* 📚 책 고르기 = 왼쪽 위 (은은한 파랑, 반투명으로 배경과 어우러지게) */
+.story-back { background: rgba(120, 180, 225, 0.26); }
+.story-back:active { background: rgba(120, 180, 225, 0.42); }
 
-/* ⏭️ 다음 이야기 = 오른쪽 아래 (초록), 대각선으로 멀리 */
+/* ⏭️ 다음 이야기 = 오른쪽 아래 (은은한 초록), 대각선으로 멀리 + 너무 밑에 붙지 않게 */
 .story-nextstory {
   position: absolute;
-  right: 16px;
-  bottom: 16px;
+  right: clamp(14px, 2.5vmin, 22px);
+  bottom: clamp(70px, 14vh, 120px);
   z-index: 12;
-  background: rgba(70, 190, 130, 0.92);
+  background: rgba(110, 205, 155, 0.26);
 }
-.story-nextstory:active { background: rgba(56, 170, 115, 1); }
+.story-nextstory:active { background: rgba(110, 205, 155, 0.42); }
 
 /* 좌우 이전/다음 화살표 (가장자리 세로 중앙) */
 .story-nav {
@@ -1061,8 +1061,8 @@ html, body {
   align-items: center;
   justify-content: center;
   gap: 1vmin;
-  width: clamp(210px, 42vmin, 460px);
-  height: clamp(210px, 42vmin, 460px);
+  width: clamp(220px, 45vmin, 500px);
+  height: clamp(220px, 45vmin, 500px);
   border: 1px solid rgba(255,255,255,0.65);
   border-radius: 40px;
   background: linear-gradient(160deg, rgba(255,255,255,0.6), rgba(255,255,255,0.3));
@@ -1074,7 +1074,7 @@ html, body {
 }
 .word-card:active:not(:disabled) { transform: translateY(4px) scale(0.98); }
 .wc-emoji {
-  font-size: clamp(5.5rem, 22vmin, 15rem);
+  font-size: clamp(6.5rem, 27vmin, 18rem);
   line-height: 1;
   filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
 }
@@ -1160,9 +1160,9 @@ html, body {
   }
   .word-cards { gap: 3vw; }
   .word-card {
-    width: clamp(140px, 44vw, 270px);
-    height: clamp(140px, 44vw, 270px);
+    width: clamp(140px, 45vw, 280px);
+    height: clamp(140px, 45vw, 280px);
     border-radius: 28px;
   }
-  .wc-emoji { font-size: clamp(3.4rem, 23vw, 8rem); }
+  .wc-emoji { font-size: clamp(4.2rem, 30vw, 10rem); }
 }

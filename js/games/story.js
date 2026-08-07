@@ -120,6 +120,19 @@ function renderPicker() {
   title.textContent = "오늘 밤엔 어떤 이야기 들을까?";
   box.appendChild(title);
 
+  // 🎲 랜덤 버튼: 엄마·아빠 녹음 이야기만 순서 섞어 계속 재생 (맨 위에 둬서 바로 누르게)
+  const recorded = STORIES.filter((s) => s.voice);
+  if (recorded.length) {
+    const rnd = document.createElement("button");
+    rnd.className = "story-random-btn";
+    rnd.innerHTML =
+      '<span class="rnd-ico">🎲</span>' +
+      '<span class="rnd-body"><span class="rnd-txt">랜덤으로 듣기</span>' +
+      '<span class="rnd-sub">엄마·아빠 목소리 이야기를 순서 섞어 계속 들려줘요</span></span>';
+    rnd.addEventListener("click", startRandom);
+    box.appendChild(rnd);
+  }
+
   const grid = document.createElement("div");
   grid.className = "story-grid";
   STORIES.forEach((st) => {
@@ -134,19 +147,6 @@ function renderPicker() {
     grid.appendChild(b);
   });
   box.appendChild(grid);
-
-  // 🎲 랜덤 버튼: 엄마·아빠 녹음 이야기만 순서 섞어 계속 재생
-  const recorded = STORIES.filter((s) => s.voice);
-  if (recorded.length) {
-    const rnd = document.createElement("button");
-    rnd.className = "story-random-btn";
-    rnd.innerHTML =
-      '<span class="rnd-ico">🎲</span>' +
-      '<span class="rnd-body"><span class="rnd-txt">랜덤으로 듣기</span>' +
-      '<span class="rnd-sub">엄마·아빠 목소리 이야기를 순서 섞어 계속 들려줘요</span></span>';
-    rnd.addEventListener("click", startRandom);
-    box.appendChild(rnd);
-  }
 
   if (!ttsSupported()) {
     const warn = document.createElement("p");
