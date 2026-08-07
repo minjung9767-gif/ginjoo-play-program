@@ -1,33 +1,33 @@
-// 💬 낱말놀이 단어 목록 (동물 카드)
+// 💬 낱말놀이 단어 목록 (동물 카드 — 얼굴만 나오면 헷갈려서 '몸 전체(옆모습)' 이모지로 통일)
 // - word : 화면에 보여줄 낱말(한글). 정답을 알려줄 때 글자로도 보여준다.
-// - art  : 크게 보여줄 이모지 그림
+// - art  : 크게 보여줄 이모지 그림 (몸 전체가 보이는 것으로)
 // - audio: 엄마가 녹음한 음성 파일 경로. 파일이 있으면 그 목소리로, 없으면 자동 음성(TTS)으로 대체된다.
 //          (잠자리 동화와 똑같은 방식 — 녹음 파일을 assets/words/ 에 넣고 경로만 적어두면 된다)
 //
-// 👉 낱말을 바꾸고 싶으면 아래 목록에서 자유롭게 빼거나 더하면 된다(그림 이모지 + 파일명만 맞춰서).
-//    녹음을 추가하려면: assets/words/ 에 아래 audio 경로대로 파일을 넣으면 자동으로 엄마 목소리로 바뀐다.
+// ※ 참고: 곰·사자·판다·여우·개구리는 이모지에 '몸 전체'가 없어(얼굴만 있음) 목록에서 빼고,
+//   몸 전체가 있는 말·소·얼룩말·사슴·다람쥐로 대체했다.
 
 export const WORDS = [
-  { word: "강아지", art: "🐶", audio: "assets/words/gangaji.m4a" },
-  { word: "고양이", art: "🐱", audio: "assets/words/goyangi.m4a" },
-  { word: "토끼",   art: "🐰", audio: "assets/words/tokki.m4a" },
-  { word: "곰",     art: "🐻", audio: "assets/words/gom.m4a" },
-  { word: "사자",   art: "🦁", audio: "assets/words/saja.m4a" },
-  { word: "호랑이", art: "🐯", audio: "assets/words/horangi.m4a" },
-  { word: "코끼리", art: "🐘", audio: "assets/words/kokkiri.m4a" },
-  { word: "기린",   art: "🦒", audio: "assets/words/girin.m4a" },
-  { word: "원숭이", art: "🐵", audio: "assets/words/wonsungi.m4a" },
-  { word: "판다",   art: "🐼", audio: "assets/words/panda.m4a" },
-  { word: "돼지",   art: "🐷", audio: "assets/words/dwaeji.m4a" },
-  { word: "오리",   art: "🦆", audio: "assets/words/ori.m4a" },
-  { word: "병아리", art: "🐤", audio: "assets/words/byeongari.m4a" },
-  { word: "개구리", art: "🐸", audio: "assets/words/gaeguri.m4a" },
-  { word: "펭귄",   art: "🐧", audio: "assets/words/penguin.m4a" },
-  { word: "여우",   art: "🦊", audio: "assets/words/yeou.m4a" },
-  { word: "물고기", art: "🐟", audio: "assets/words/mulgogi.m4a" },
-  { word: "거북이", art: "🐢", audio: "assets/words/geobugi.m4a" },
-  { word: "나비",   art: "🦋", audio: "assets/words/nabi.m4a" },
-  { word: "공룡",   art: "🦕", audio: "assets/words/gongryong.m4a" },
+  { word: "강아지", art: "🐕",  audio: "assets/words/gangaji.m4a" },
+  { word: "고양이", art: "🐈",  audio: "assets/words/goyangi.m4a" },
+  { word: "토끼",   art: "🐇",  audio: "assets/words/tokki.m4a" },
+  { word: "호랑이", art: "🐅",  audio: "assets/words/horangi.m4a" },
+  { word: "돼지",   art: "🐖",  audio: "assets/words/dwaeji.m4a" },
+  { word: "원숭이", art: "🐒",  audio: "assets/words/wonsungi.m4a" },
+  { word: "코끼리", art: "🐘",  audio: "assets/words/kokkiri.m4a" },
+  { word: "기린",   art: "🦒",  audio: "assets/words/girin.m4a" },
+  { word: "말",     art: "🐎",  audio: "assets/words/mal.m4a" },
+  { word: "소",     art: "🐄",  audio: "assets/words/so.m4a" },
+  { word: "얼룩말", art: "🦓",  audio: "assets/words/eollukmal.m4a" },
+  { word: "사슴",   art: "🦌",  audio: "assets/words/saseum.m4a" },
+  { word: "다람쥐", art: "🐿️", audio: "assets/words/daramjwi.m4a" },
+  { word: "펭귄",   art: "🐧",  audio: "assets/words/penguin.m4a" },
+  { word: "오리",   art: "🦆",  audio: "assets/words/ori.m4a" },
+  { word: "병아리", art: "🐤",  audio: "assets/words/byeongari.m4a" },
+  { word: "거북이", art: "🐢",  audio: "assets/words/geobugi.m4a" },
+  { word: "물고기", art: "🐟",  audio: "assets/words/mulgogi.m4a" },
+  { word: "나비",   art: "🦋",  audio: "assets/words/nabi.m4a" },
+  { word: "공룡",   art: "🦕",  audio: "assets/words/gongryong.m4a" },
 ];
 
 // 공용 문구(모든 단어에 함께 쓰이는 말). audio가 없으면 자동 음성으로 대체된다.
