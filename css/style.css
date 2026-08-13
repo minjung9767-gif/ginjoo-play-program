@@ -247,6 +247,10 @@ html, body {
 .ctrl-btn.muted .ic-sound { display: none; }
 .ctrl-btn.muted .ic-muted { display: block; }
 
+/* 🌙 잠자리 동화에서는 음소거 버튼을 숨긴다.
+   (화면을 누르면 이야기가 멈추면서 소리도 같이 멈추므로 따로 필요 없음) */
+#game[data-game="story"] #muteBtn { display: none; }
+
 /* ===== 상태/로딩 오버레이 ===== */
 .status-overlay {
   position: absolute;

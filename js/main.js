@@ -71,11 +71,16 @@ async function enterGame(game) {
   currentGame = game;
 
   showScreen(gameScreen);
+  // 놀이별로 컨트롤 노출을 다르게 하기 위한 표시 (예: 동화는 음소거 버튼 숨김)
+  gameScreen.dataset.game = game;
   setStatus(def.needsCamera === false ? "준비하고 있어요..." : "카메라를 준비하고 있어요...", true);
 
   // 사용자 제스처(버튼 클릭) 시점에 오디오 활성화 (효과음용)
   try {
     await resumeAudio();
+    // 동화는 음소거 버튼이 없으므로(화면을 눌러 멈추면 소리도 멈춤),
+    // 다른 놀이에서 꺼둔 채로 들어와 소리가 안 나는 일이 없게 켜 준다.
+    if (game === "story" && isMuted()) toggleMute();
     muteBtn.classList.toggle("muted", isMuted());
   } catch (_) {}
 
@@ -104,6 +109,7 @@ function exitGame() {
   stopCamera(video);
   stopCallMusic();
   currentGame = null;
+  delete gameScreen.dataset.game;
   setStatus("", false);
   showScreen(homeScreen);
 }
