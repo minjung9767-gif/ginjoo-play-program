@@ -36,6 +36,9 @@
       <span class="float-bubble b8"></span>
     </div>
 
+    <!-- 밤하늘 별 (밤 모드에서만 보임 · 별은 js/main.js가 만들어 넣는다) -->
+    <div class="home-stars" id="homeStars" aria-hidden="true"></div>
+
     <div class="home-header">
       <h1 class="home-title">
         <span class="title-text">긴주 놀이터</span>
@@ -65,8 +68,10 @@
             <path d="M58 49 q24 3 31 30 q1.5 7 9 9" fill="none" stroke="#ffb84d" stroke-width="10" stroke-linecap="round"/>
             <path d="M58 49 q24 3 31 30 q1.5 7 9 9" fill="none" stroke="#ffe0a8" stroke-width="3.5" stroke-linecap="round"/>
           </svg>
+          <span class="night-moon" aria-hidden="true">🌙</span>
         </span>
       </h1>
+      <p class="night-note">잘 준비 하는 시간이에요 · 오늘도 폭 자자 💤</p>
     </div>
     <div class="play-buttons">
       <button class="play-btn" data-game="mirror">
@@ -122,6 +127,15 @@
         <span class="play-label">낱말놀이</span>
       </button>
     </div>
+
+    <!-- 부모용: 꾹 눌러야 밤/낮 모드가 바뀐다 (아기가 실수로 못 누르게) -->
+    <button id="nightSwitch" class="night-switch" type="button" aria-label="밤 모드로 바꾸기 (꾹 누르기)">
+      <span class="ns-fill" aria-hidden="true"></span>
+      <span class="ns-ico" aria-hidden="true">🌙</span>
+      <span class="ns-txt">밤 모드로</span>
+      <span class="ns-hint">꾹 누르기</span>
+    </button>
+    <div id="nightToast" class="night-toast" role="status"></div>
   </section>
 
   <!-- 게임 화면: 매직 거울 -->

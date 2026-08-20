@@ -163,6 +163,119 @@ html, body {
 .play-label { font-size: clamp(1.3rem, 4vmin, 2.6rem); color: #0a5e7a; font-weight: 400; }
 
 .play-btn.coming-soon { opacity: 0.55; cursor: default; }
+
+/* ===== 🌙 밤 모드 (밤 9시 ~ 새벽 6시) =====
+   시작 화면이 밤하늘로 바뀌고, 조용한 놀이(잠자리 동화)만 남는다. */
+
+/* 밤에 감출 놀이 버튼 — 흐리게가 아니라 아예 숨긴다 (보이면 아기가 누르니까) */
+.play-btn.night-hidden { display: none; }
+
+#home.night {
+  background:
+    radial-gradient(130% 70% at 50% -10%, rgba(120,140,230,0.30) 0%, rgba(10,14,40,0) 55%),
+    linear-gradient(170deg, #0a0f2e 0%, #121a44 48%, #1c2054 100%);
+}
+
+/* 낮의 물방울 대신 밤하늘 별 */
+.home-stars { position: absolute; inset: 0; z-index: 0; pointer-events: none; display: none; }
+#home.night .home-stars { display: block; }
+#home.night .home-bubbles { display: none; }
+
+/* 제목: 달빛 색으로 */
+#home.night .title-text {
+  background-image: linear-gradient(180deg, #ffe9b3 0%, #ffd291 52%, #b9a8ff 100%);
+  -webkit-text-stroke: 3px rgba(255, 255, 255, 0.3);
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.55));
+}
+/* 제목 옆 그림: 놀이터 → 달 */
+.night-moon { display: none; font-size: clamp(3.4rem, 15vmin, 9.5rem); line-height: 1; }
+#home.night .title-emoji .playground-svg { display: none; }
+#home.night .night-moon { display: inline-block; }
+
+.night-note { display: none; }
+#home.night .night-note {
+  display: block;
+  margin-top: clamp(2px, 1vh, 14px);
+  color: #aab2e0;
+  font-size: clamp(1rem, 3vmin, 1.7rem);
+}
+
+/* 남은 놀이 하나는 조금 더 크게, 밤하늘에 어울리는 색으로 */
+#home.night .play-btn {
+  width: clamp(220px, 38vmin, 420px);
+  height: clamp(220px, 38vmin, 420px);
+  border-color: rgba(255, 233, 179, 0.32);
+  background: linear-gradient(160deg, rgba(255,255,255,0.13), rgba(255,255,255,0.05));
+  box-shadow: 0 12px 34px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.16);
+}
+#home.night .play-btn:active:not(:disabled) {
+  background: linear-gradient(160deg, rgba(255,255,255,0.2), rgba(255,255,255,0.09));
+}
+#home.night .play-label { color: #ffe9b3; }
+
+/* 부모용 밤/낮 스위치 — 2초 꾹 눌러야 바뀐다 */
+.night-switch {
+  position: absolute;
+  right: clamp(10px, 2vmin, 24px);
+  bottom: clamp(10px, 2vmin, 24px);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  padding: 9px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.35);
+  color: #2b5d78;
+  font-family: inherit;
+  font-size: clamp(0.75rem, 2vmin, 1rem);
+  cursor: pointer;
+  opacity: 0.5;
+  touch-action: none; /* 꾹 누르는 동안 화면이 스크롤되지 않게 */
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.15s ease;
+}
+.night-switch:active { opacity: 1; }
+.night-switch > span:not(.ns-fill) { position: relative; } /* 차오르는 표시 위에 글자가 오게 */
+.night-switch .ns-ico { font-size: 1.15em; line-height: 1; }
+.night-switch .ns-hint { opacity: 0.7; font-size: 0.85em; }
+#home.night .night-switch {
+  border-color: rgba(255, 233, 179, 0.28);
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffe9b3;
+}
+/* 꾹 누르는 동안 왼쪽부터 차오른다 (얼마나 더 눌러야 하는지 보이게) */
+.ns-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  background: rgba(255, 214, 140, 0.5);
+  pointer-events: none;
+}
+.night-switch.holding .ns-fill { width: 100%; transition: width 2s linear; }
+
+/* 모드를 바꿨을 때 잠깐 뜨는 알림 */
+.night-toast {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(64px, 13vh, 140px);
+  transform: translateX(-50%) translateY(10px);
+  z-index: 4;
+  max-width: 92vw;
+  padding: 10px 20px;
+  border-radius: 999px;
+  background: rgba(12, 16, 44, 0.88);
+  color: #ffe9b3;
+  font-size: clamp(0.85rem, 2.4vmin, 1.2rem);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.night-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 .badge {
   position: absolute;
   top: 8px; right: 8px;

@@ -23,7 +23,10 @@ export async function resumeAudio() {
     if (navigator.audioSession) navigator.audioSession.type = "playback";
   } catch (_) {}
   if (ctx.state === "suspended") {
-    await ctx.resume();
+    // 사용자가 누르지 않은 상태(예: 밤에 앱을 켜자마자 동화로 자동으로 들어온 경우)에는
+    // resume()의 약속이 끝나지 않고 계속 기다릴 수 있다 → 잠깐만 기다리고 넘어간다.
+    // (그러면 화면은 정상으로 뜨고, 다음에 사용자가 무언가를 누를 때 소리가 깨어난다)
+    await Promise.race([ctx.resume(), new Promise((r) => setTimeout(r, 400))]);
   }
   // iOS 오디오 잠금 해제: 제스처 시점에 아주 짧은 무음을 한 번 흘려보냄
   if (!audioUnlocked) {
