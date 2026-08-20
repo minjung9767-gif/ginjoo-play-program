@@ -815,6 +815,22 @@ html, body {
 .sp-moon { font-size: clamp(3rem, 12vmin, 7rem); animation: bob 2.4s ease-in-out infinite; }
 .sp-text { font-size: clamp(1.2rem, 4.2vmin, 2.2rem); color: #ffe9b3; }
 .sp-sub { font-size: clamp(0.85rem, 2.8vmin, 1.3rem); color: #aab2e0; }
+/* 멈춤 화면의 "다른 이야기" 버튼 — 오버레이 자체는 안 눌리므로 버튼만 눌리게 켜 준다 */
+.sp-next-btn {
+  margin-top: 1.8vh;
+  padding: 12px 26px;
+  border: 1px solid rgba(255, 233, 179, 0.35);
+  border-radius: 999px;
+  background: rgba(255, 233, 179, 0.12);
+  color: #ffe9b3;
+  font-family: inherit;
+  font-size: clamp(0.95rem, 3vmin, 1.4rem);
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.1s ease, background 0.15s ease;
+}
+.sp-next-btn:active { transform: scale(0.96); background: rgba(255, 233, 179, 0.22); }
 
 /* 처음에 잠깐 보여주는 안내 문구 */
 .story-hint {
