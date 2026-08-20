@@ -6,6 +6,7 @@ import { startKeypad, stopKeypad } from "./games/keypad.js";
 import { startStory, stopStory } from "./games/story.js";
 import { startWord, stopWord } from "./games/word.js";
 import { resumeAudio, stopCallMusic, toggleMute, isMuted } from "./audio.js";
+import { isNightMode, setNightMode, timeLabel, NIGHT_GAMES } from "./night.js";
 
 const homeScreen = document.getElementById("home");
 const gameScreen = document.getElementById("game");
@@ -15,6 +16,9 @@ const statusOverlay = document.getElementById("status");
 const statusText = document.getElementById("statusText");
 const muteBtn = document.getElementById("muteBtn");
 const homeBtn = document.getElementById("homeBtn");
+const nightSwitch = document.getElementById("nightSwitch");
+const nightToast = document.getElementById("nightToast");
+const homeStars = document.getElementById("homeStars");
 
 // 놀이 레지스트리
 const GAMES = {
@@ -129,5 +133,99 @@ muteBtn.addEventListener("click", () => {
   muteBtn.classList.toggle("muted", muted);
 });
 
+/* ===== 🌙 밤 모드 =====
+   밤(밤 9시~새벽 6시)에는 시작 화면이 밤 버전으로 바뀌고 조용한 놀이만 남는다.
+   놀이 도중에 시각이 바뀌어도 놀던 걸 끊지 않고, 시작 화면에만 반영한다. */
+let nightApplied = null; // 지금 화면에 적용해 둔 상태 (같으면 다시 그리지 않음)
+
+function applyNightMode(force) {
+  const night = isNightMode();
+  if (!force && night === nightApplied) return;
+  nightApplied = night;
+  homeScreen.classList.toggle("night", night);
+  // 밤에 남길 놀이만 남기고 나머지 버튼은 감춘다 (보이면 누르니까 아예 숨김)
+  document.querySelectorAll(".play-btn").forEach((b) => {
+    b.classList.toggle("night-hidden", night && !NIGHT_GAMES.includes(b.dataset.game));
+  });
+  nightSwitch.querySelector(".ns-ico").textContent = night ? "☀️" : "🌙";
+  nightSwitch.querySelector(".ns-txt").textContent = night ? "낮 모드로" : "밤 모드로";
+  nightSwitch.setAttribute(
+    "aria-label",
+    (night ? "낮 모드로" : "밤 모드로") + " 바꾸기 (꾹 누르기)"
+  );
+}
+
+// 밤하늘 별 (밤 모드 배경 장식)
+function makeHomeStars(n) {
+  if (!homeStars || homeStars.childElementCount) return;
+  for (let i = 0; i < n; i++) {
+    const s = document.createElement("span");
+    s.className = "night-star";
+    s.style.left = (Math.random() * 100).toFixed(1) + "%";
+    s.style.top = (Math.random() * 100).toFixed(1) + "%";
+    const size = (2 + Math.random() * 3).toFixed(1);
+    s.style.width = size + "px";
+    s.style.height = size + "px";
+    s.style.animationDelay = (Math.random() * 4).toFixed(2) + "s";
+    s.style.animationDuration = (2.5 + Math.random() * 3).toFixed(2) + "s";
+    homeStars.appendChild(s);
+  }
+}
+
+let toastTimer = null;
+function showNightToast(text) {
+  nightToast.textContent = text;
+  nightToast.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => nightToast.classList.remove("show"), 3800);
+}
+
+// 수동 스위치: 2초 꾹 눌러야 바뀐다 (아기가 툭 눌러선 안 바뀌게)
+const HOLD_MS = 2000;
+let holdTimer = null;
+
+function startHold(e) {
+  e.preventDefault();
+  if (holdTimer) return;
+  nightSwitch.classList.add("holding");
+  holdTimer = setTimeout(() => {
+    holdTimer = null;
+    nightSwitch.classList.remove("holding");
+    const now = new Date();
+    const next = !isNightMode(now);
+    const until = setNightMode(next, now);
+    applyNightMode(true);
+    showNightToast(
+      (next ? "🌙 밤 모드로 바꿨어요" : "☀️ 낮 모드로 바꿨어요") +
+        " · " + timeLabel(until) + "까지"
+    );
+  }, HOLD_MS);
+}
+
+function cancelHold() {
+  if (holdTimer) {
+    clearTimeout(holdTimer);
+    holdTimer = null;
+  }
+  nightSwitch.classList.remove("holding");
+}
+
+nightSwitch.addEventListener("pointerdown", startHold);
+["pointerup", "pointerleave", "pointercancel"].forEach((n) =>
+  nightSwitch.addEventListener(n, cancelHold)
+);
+
+// 시각이 지나 낮↔밤이 바뀌면 시작 화면도 따라 바뀌게 (1분마다 + 화면을 다시 볼 때)
+setInterval(() => applyNightMode(), 60000);
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden) applyNightMode();
+});
+window.addEventListener("focus", () => applyNightMode());
+
 // 시작 화면 표시
+makeHomeStars(44);
+applyNightMode(true);
 showScreen(homeScreen);
+
+// 밤에는 앱을 켜면 시작 화면을 거치지 않고 바로 동화 책장으로 간다
+if (isNightMode()) enterGame("story");
