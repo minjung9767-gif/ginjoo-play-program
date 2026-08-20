@@ -2,6 +2,9 @@
 // - 이야기를 고르면 장면(그림+글)을 자동 음성이 차례로 읽어 준다.
 // - 화면을 톡 누르면 잠깐 멈추고(아기와 이야기 나누는 시간), 다시 누르면 이어서 읽는다.
 // - 자동 음성이 안 되는 브라우저에서는 글을 직접 읽어 주고, 누르면 다음 장면으로 넘어간다.
+// - 화면을 끄거나 다른 앱으로 가도 계속 들리도록:
+//   ① 소리 재생기(Audio)를 장면마다 새로 만들지 않고 "하나만 만들어 계속 재사용"하고
+//   ② 잠금화면 미디어(MediaSession)에 등록해 브라우저가 백그라운드 재생을 허용하게 한다.
 import { STORIES } from "../stories.js";
 import {
   speakText,
@@ -25,7 +28,12 @@ let story = null;
 let currentScene = 0;
 let sceneToken = 0;   // 장면이 바뀌면 +1 → 이전 장면의 자동 진행을 무효화
 let stalledNext = -1; // 장면 사이 쉬는 틈에 멈췄을 때, 다시 시작할 장면 번호
-let audioEl = null;   // 녹음 음성 파일 재생용 (scene.audio가 있을 때)
+// 녹음 음성 파일 재생용 (scene.audio가 있을 때).
+// 장면마다 새 Audio를 만들면 화면이 꺼진 동안 브라우저가 "새로 나는 소리"로 보고 막아 버린다.
+// 그래서 재생기는 딱 하나만 만들어 두고, 장면이 바뀌면 파일 경로(src)만 갈아끼운다.
+let player = null;    // 재사용하는 소리 재생기 (하나뿐)
+let recToken = 0;     // 재생 요청 번호 — 이전 장면의 끝남/오류 신호를 무시하려고
+let recActive = false; // 지금 녹음 소리가 재생 중(또는 잠깐 멈춤)인지
 let randomMode = false; // 🎲 랜덤 자동 재생 중인지
 let playlist = [];      // 랜덤 재생 목록 (엄마·아빠 녹음 이야기만, 섞인 순서)
 let playIdx = 0;        // 지금 재생 중인 목록 위치
@@ -65,6 +73,7 @@ export function stopStory() {
   document.removeEventListener("keydown", onKeyDown);
   stopSpeech();
   stopRecorded();
+  clearMediaSession();
   const gameEl = document.getElementById("game");
   if (gameEl) gameEl.classList.remove("story-mode");
   if (wrapEl) {
@@ -104,6 +113,7 @@ function renderPicker() {
   sceneToken++;
   stopSpeech();
   stopRecorded();
+  clearMediaSession();
   story = null;
   paused = false;
   stalledNext = -1;
@@ -169,11 +179,17 @@ function voiceBadge(st) {
 
 /* ===== 🎲 랜덤 자동 재생 (엄마·아빠 녹음 이야기만) ===== */
 function startRandom() {
+  startRandomPlaylist(lastRandomStartId);
+}
+
+// 녹음 이야기들을 섞어 랜덤 재생을 시작한다.
+// excludeId를 주면 그 이야기로는 시작하지 않는다 (방금 들은 게 또 나오지 않도록).
+// 녹음된 이야기가 하나도 없으면 아무것도 하지 않고 false를 돌려준다.
+function startRandomPlaylist(excludeId) {
   const recorded = STORIES.filter((s) => s.voice);
-  if (!recorded.length) return;
+  if (!recorded.length) return false;
   playlist = shuffle(recorded);
-  // 누를 때마다 첫 이야기가 지난번과 다르도록 (같으면 뒤의 다른 이야기와 자리 교체)
-  if (playlist.length > 1 && playlist[0].id === lastRandomStartId) {
+  if (playlist.length > 1 && playlist[0].id === excludeId) {
     const swapWith = 1 + Math.floor(Math.random() * (playlist.length - 1));
     [playlist[0], playlist[swapWith]] = [playlist[swapWith], playlist[0]];
   }
@@ -181,16 +197,24 @@ function startRandom() {
   playIdx = 0;
   randomMode = true;
   beginStory(playlist[0]);
+  return true;
 }
 
-// 랜덤 재생 중 "다음 이야기" 버튼: 지금 이야기를 멈추고 바로 다음 이야기로
+// "다음 이야기" 버튼: 지금 이야기를 멈추고 바로 다른 이야기로 넘어간다.
+// (랜덤 재생 중이면 목록의 다음 편, 한 편만 골라 듣던 중이면 다른 이야기로 랜덤 시작)
 function skipToNextStory() {
-  if (!running || !randomMode) return;
+  if (!running || !story) return;
+  const currentId = story.id;
   stopSpeech();
   stopRecorded();
   paused = false;
   stalledNext = -1;
-  playNextInPlaylist();
+  togglePausedOverlay(false);
+  if (randomMode && playlist.length) {
+    playNextInPlaylist();
+    return;
+  }
+  if (!startRandomPlaylist(currentId)) renderPicker();
 }
 
 // 한 편이 끝나면 목록의 다음 편으로. 다 돌면 다시 섞어서 계속 (틀어놓기용)
@@ -244,6 +268,7 @@ function beginStory(st) {
     '  <div class="sp-moon">🌙</div>' +
     '  <div class="sp-text">잠깐 쉬는 중이에요</div>' +
     '  <div class="sp-sub">화면을 누르면 이어서 읽어 줄게요</div>' +
+    '  <button class="sp-next-btn" type="button">⏭ 다른 이야기 들을래요</button>' +
     "</div>" +
     `<div class="story-hint">${ttsSupported() ? "화면을 누르거나 스페이스바로 잠깐 멈춰요 · ‹ › 로 앞뒤 장면" : "화면을 누르면 다음 장면으로 넘어가요"}</div>`;
 
@@ -271,9 +296,18 @@ function beginStory(st) {
     e.stopPropagation();
     nextScene();
   });
+  // 멈춤 화면의 "다른 이야기 들을래요" (화면 탭으로 이어읽기가 되지 않도록 전파 막기)
+  stageEl.querySelector(".sp-next-btn").addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    skipToNextStory();
+  });
 
   stageEl.addEventListener("pointerdown", onStageTap);
   contentEl.appendChild(stageEl);
+
+  // 잠금화면/알림창에 "지금 이 동화를 틀고 있어요"라고 알려 준다 (백그라운드 재생 허용의 핵심)
+  setupMediaSession();
 
   // 첫 안내 문구는 잠시 보였다가 사라짐
   setTimeout(() => {
@@ -347,17 +381,19 @@ function onKeyDown(e) {
 function pauseReading() {
   paused = true;
   pauseSpeech();
-  if (audioEl) audioEl.pause();
+  if (player && recActive) player.pause();
   togglePausedOverlay(true);
+  syncMediaState();
 }
 
 function resumeReading() {
   paused = false;
   togglePausedOverlay(false);
+  syncMediaState();
   if (hasPausedSpeech()) {
     resumeSpeech();
-  } else if (audioEl) {
-    audioEl.play().catch(() => {});
+  } else if (player && recActive) {
+    player.play().catch(() => {});
   } else if (stalledNext >= 0) {
     // 장면 사이 쉬는 틈에 멈췄던 경우 → 다음 장면부터 이어서
     const next = stalledNext;
@@ -395,6 +431,7 @@ async function playScene(i) {
   artEl.classList.add("scene-in");
   textEl.classList.add("scene-in");
   updateDots(i);
+  syncMediaState();
   // 첫 장면에선 '이전' 화살표 흐리게(비활성)
   const prevBtn = stageEl.querySelector(".story-prev");
   if (prevBtn) prevBtn.disabled = i === 0;
@@ -423,38 +460,49 @@ function speakScene(sc) {
 }
 
 /* ===== 녹음 음성 파일 재생 (엄마·아빠 목소리) ===== */
+// 재생기는 딱 하나만 만들어 두고 계속 재사용한다.
+// (장면마다 새로 만들면 화면이 꺼진 동안 브라우저가 새 소리를 막아 거기서 끊긴다)
+function getPlayer() {
+  if (player) return player;
+  player = new Audio();
+  player.preload = "auto";
+  return player;
+}
+
 // 끝까지 재생하면 true, 파일이 없거나 재생에 실패하면 false (→ 자동 음성으로 대체)
+// 중간에 멈추거나 다른 장면으로 넘어가면 이 약속은 그대로 버려진다(장면 번호로 걸러짐).
 function playRecorded(src) {
+  const el = getPlayer();
+  const token = ++recToken;
+  recActive = true;
   return new Promise((resolve) => {
-    audioEl = new Audio(src);
-    audioEl.muted = isMuted();
+    const finish = (ok) => {
+      if (token !== recToken) return; // 이미 다른 장면으로 넘어갔음 → 무시
+      el.onended = null;
+      el.onerror = null;
+      recActive = false;
+      resolve(ok);
+    };
+    el.onended = () => finish(true);
+    el.onerror = () => finish(false);
+    el.muted = isMuted();
     // 목소리별 음량 균형 (엄마 100% 기준, 아빠는 조금 작게)
-    audioEl.volume = (story && VOICE_VOLUME[story.voice]) || 1;
-    audioEl.onended = () => {
-      audioEl = null;
-      resolve(true);
-    };
-    audioEl.onerror = () => {
-      audioEl = null;
-      resolve(false);
-    };
-    audioEl.play().catch(() => {
-      // 자동재생이 막히거나 형식을 지원하지 않는 경우
-      if (audioEl) {
-        audioEl = null;
-        resolve(false);
-      }
-    });
+    el.volume = (story && VOICE_VOLUME[story.voice]) || 1;
+    el.src = src;
+    // 자동재생이 막히거나 형식을 지원하지 않는 경우 → 자동 음성으로 대체
+    el.play().catch(() => finish(false));
   });
 }
 
 function stopRecorded() {
-  if (audioEl) {
-    try {
-      audioEl.pause();
-    } catch (_) {}
-    audioEl = null;
-  }
+  recToken++; // 진행 중이던 재생의 끝남/오류 신호를 무효화
+  recActive = false;
+  if (!player) return;
+  player.onended = null;
+  player.onerror = null;
+  try {
+    player.pause();
+  } catch (_) {}
 }
 
 function updateDots(i) {
@@ -474,22 +522,11 @@ function showEnd() {
     return;
   }
   // 하나만 골라 시작했더라도, 끝나면 랜덤으로 다른 이야기를 계속 이어서 들려줌
-  const recorded = STORIES.filter((s) => s.voice);
-  if (recorded.length) {
-    const finishedId = story && story.id;
-    playlist = shuffle(recorded);
-    // 방금 끝난 이야기가 바로 또 나오지 않도록 (같으면 뒤의 다른 이야기와 자리 교체)
-    if (playlist.length > 1 && playlist[0].id === finishedId) {
-      const swapWith = 1 + Math.floor(Math.random() * (playlist.length - 1));
-      [playlist[0], playlist[swapWith]] = [playlist[swapWith], playlist[0]];
-    }
-    lastRandomStartId = playlist[0].id;
-    playIdx = 0;
-    randomMode = true;
-    beginStory(playlist[0]);
-    return;
-  }
+  // (방금 끝난 이야기가 바로 또 나오지 않도록 제외)
+  if (startRandomPlaylist(story && story.id)) return;
+
   // (녹음된 이야기가 하나도 없을 때만) 조용한 끝 화면
+  clearMediaSession();
   sceneToken++;
   story = null;
   paused = false;
@@ -512,6 +549,85 @@ function showEnd() {
   end.appendChild(again);
   contentEl.appendChild(end);
   // 끝 화면은 소리 없이 글자만 (자는 아기를 깨우지 않도록)
+}
+
+/* ===== 잠금화면 미디어 등록 (MediaSession) =====
+   화면을 끄거나 다른 앱으로 가도 계속 들리게 하려면, 브라우저에게
+   "이 페이지는 음악 앱처럼 소리를 계속 틀고 있다"고 알려 줘야 한다.
+   덤으로 잠금화면·알림창에 제목과 ⏯ ⏮ ⏭ 버튼이 뜬다. */
+function mediaSession() {
+  return typeof navigator !== "undefined" && "mediaSession" in navigator
+    ? navigator.mediaSession
+    : null;
+}
+
+function setupMediaSession() {
+  const ms = mediaSession();
+  if (!ms || !story) return;
+  try {
+    if (typeof window.MediaMetadata === "function") {
+      ms.metadata = new window.MediaMetadata({
+        title: story.title,
+        artist: story.voice ? story.voice + " 목소리" : "자동 목소리",
+        album: "🌙 잠자리 동화 · 긴주 놀이터",
+        artwork: makeArtwork(story.emoji),
+      });
+    }
+  } catch (_) {}
+  setHandler(ms, "play", () => {
+    if (paused) resumeReading();
+  });
+  setHandler(ms, "pause", () => {
+    if (!paused) pauseReading();
+  });
+  setHandler(ms, "previoustrack", prevScene);
+  setHandler(ms, "nexttrack", nextScene);
+  syncMediaState();
+}
+
+function setHandler(ms, name, fn) {
+  try {
+    ms.setActionHandler(name, fn);
+  } catch (_) {} // 브라우저가 지원하지 않는 동작은 그냥 넘어감
+}
+
+// 잠금화면 버튼 모양(▶/⏸)을 지금 상태에 맞춘다
+function syncMediaState() {
+  const ms = mediaSession();
+  if (!ms) return;
+  try {
+    ms.playbackState = story ? (paused ? "paused" : "playing") : "none";
+  } catch (_) {}
+}
+
+function clearMediaSession() {
+  const ms = mediaSession();
+  if (!ms) return;
+  try {
+    ms.metadata = null;
+    ms.playbackState = "none";
+  } catch (_) {}
+  ["play", "pause", "previoustrack", "nexttrack"].forEach((n) => setHandler(ms, n, null));
+}
+
+// 잠금화면에 띄울 그림: 이미지 파일 없이 이모지를 캔버스에 그려서 만든다
+function makeArtwork(emoji) {
+  try {
+    const size = 256;
+    const c = document.createElement("canvas");
+    c.width = size;
+    c.height = size;
+    const g = c.getContext("2d");
+    g.fillStyle = "#131a3d";
+    g.fillRect(0, 0, size, size);
+    g.font = "150px serif";
+    g.textAlign = "center";
+    g.textBaseline = "middle";
+    g.fillText(emoji || "🌙", size / 2, size / 2 + 8);
+    return [{ src: c.toDataURL("image/png"), sizes: "256x256", type: "image/png" }];
+  } catch (_) {
+    return [];
+  }
 }
 
 function delay(ms) {
