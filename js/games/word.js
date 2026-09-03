@@ -37,6 +37,7 @@ export async function startWord(videoEl, canvasEl, onReady) {
   correctCount = 0;
   lastTargetWord = "";
   mastery = loadMastery();
+  preloadImages();
 
   wrapEl = document.createElement("div");
   wrapEl.className = "word-wrap";
@@ -174,9 +175,11 @@ function renderCards(pair) {
   cards = pair.map((w) => {
     const btn = document.createElement("button");
     btn.className = "word-card";
-    btn.innerHTML =
-      `<span class="wc-emoji">${w.art}</span>` +
-      `<span class="wc-label">${w.word}</span>`;
+    btn.appendChild(makeArt(w));
+    const label = document.createElement("span");
+    label.className = "wc-label";
+    label.textContent = w.word;
+    btn.appendChild(label);
     btn.addEventListener("pointerdown", (e) => {
       e.preventDefault();
       e.stopPropagation();
@@ -184,6 +187,36 @@ function renderCards(pair) {
     });
     cardsEl.appendChild(btn);
     return { el: btn, word: w };
+  });
+}
+
+/* 카드 그림 만들기: 사진(img)이 있으면 사진, 없거나 못 불러오면 이모지(art)로 */
+function makeArt(w) {
+  const box = document.createElement("span");
+  box.className = "wc-emoji";
+  if (!w.img) {
+    box.textContent = w.art;
+    return box;
+  }
+  const im = document.createElement("img");
+  im.className = "wc-img";
+  im.src = w.img;
+  im.alt = "";
+  im.decoding = "async";
+  im.addEventListener("error", () => {
+    // 사진을 못 불러오면 조용히 이모지로 되돌린다
+    box.classList.remove("has-img");
+    box.textContent = w.art;
+  });
+  box.classList.add("has-img");
+  box.appendChild(im);
+  return box;
+}
+
+/* 사진을 미리 받아둔다 (문제가 바뀔 때 깜빡이지 않게) */
+function preloadImages() {
+  WORDS.forEach((w) => {
+    if (w.img) new Image().src = w.img;
   });
 }
 
