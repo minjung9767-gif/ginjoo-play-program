@@ -1203,6 +1203,23 @@ html, body {
   line-height: 1;
   filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
 }
+/* 실사 사진을 쓸 때 (사진이 없으면 위의 이모지 그대로) */
+.wc-emoji.has-img {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 86%;
+  height: 74%;
+  font-size: 0;               /* 혹시 남은 글자가 자리를 차지하지 않게 */
+}
+.wc-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  -webkit-user-drag: none;
+  user-select: none;
+  pointer-events: none;       /* 사진을 눌러도 카드가 눌리게 */
+}
 .wc-label {
   font-family: "Jua", sans-serif;
   font-size: clamp(1.6rem, 6vmin, 3.4rem);
