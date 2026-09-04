@@ -1,4 +1,4 @@
-// 💬 낱말놀이 단어 목록 (동물 카드 — 얼굴만 나오면 헷갈려서 '몸 전체(옆모습)' 이모지로 통일)
+// 💬 낱말놀이 단어 목록 (동물 20 + 우리 집 물건 20 = 40개. 한 통에 섞여서 랜덤으로 나온다)
 // - word : 화면에 보여줄 낱말(한글). 정답을 알려줄 때 글자로도 보여준다.
 // - art  : 사진을 못 불러왔을 때 대신 보여줄 이모지 그림 (몸 전체가 보이는 것으로)
 // - img  : 카드에 크게 보여줄 실사 사진. 파일이 없거나 못 불러오면 자동으로 art(이모지)로 대체된다.
@@ -29,6 +29,28 @@ export const WORDS = [
   { word: "물고기", art: "🐟",  audio: "assets/words/mulgogi.m4a", img: "assets/words/img/mulgogi.png" },
   { word: "나비",   art: "🦋",  audio: "assets/words/nabi.m4a", img: "assets/words/img/nabi.png" },
   { word: "공룡",   art: "🦕",  audio: "assets/words/gongryong.m4a", img: "assets/words/img/gongryong.png" },
+
+  // ── 🧢 우리 집 물건 (동물과 한 통에 섞여서 나온다) ──
+  { word: "공",   art: "⚽",  audio: "assets/words/gong.m4a", img: "assets/words/img/gong.png" },
+  { word: "신발",  art: "👟",  audio: "assets/words/sinbal.m4a", img: "assets/words/img/sinbal.png" },
+  { word: "양말",  art: "🧦",  audio: "assets/words/yangmal.m4a", img: "assets/words/img/yangmal.png" },
+  { word: "모자",  art: "🧢",  audio: "assets/words/moja.m4a", img: "assets/words/img/moja.png" },
+  { word: "컵",   art: "🥤",  audio: "assets/words/keop.m4a", img: "assets/words/img/keop.png" },
+  { word: "숟가락", art: "🥄",  audio: "assets/words/sutgarak.m4a", img: "assets/words/img/sutgarak.png" },
+  { word: "칫솔",  art: "🪥",  audio: "assets/words/chitsol.m4a", img: "assets/words/img/chitsol.png" },
+  { word: "비누",  art: "🧼",  audio: "assets/words/binu.m4a", img: "assets/words/img/binu.png" },
+  { word: "가방",  art: "🎒",  audio: "assets/words/gabang.m4a", img: "assets/words/img/gabang.png" },
+  { word: "우산",  art: "☂️",  audio: "assets/words/usan.m4a", img: "assets/words/img/usan.png" },
+  { word: "시계",  art: "⏰",  audio: "assets/words/sigye.m4a", img: "assets/words/img/sigye.png" },
+  { word: "의자",  art: "🪑",  audio: "assets/words/uija.m4a", img: "assets/words/img/uija.png" },
+  { word: "침대",  art: "🛏️",  audio: "assets/words/chimdae.m4a", img: "assets/words/img/chimdae.png" },
+  { word: "책",   art: "📖",  audio: "assets/words/chaek.m4a", img: "assets/words/img/chaek.png" },
+  { word: "인형",  art: "🧸",  audio: "assets/words/inhyeong.m4a", img: "assets/words/img/inhyeong.png" },
+  { word: "블록",  art: "🧱",  audio: "assets/words/beullok.m4a", img: "assets/words/img/beullok.png" },
+  { word: "풍선",  art: "🎈",  audio: "assets/words/pungseon.m4a", img: "assets/words/img/pungseon.png" },
+  { word: "휴지",  art: "🧻",  audio: "assets/words/hyuji.m4a", img: "assets/words/img/hyuji.png" },
+  { word: "열쇠",  art: "🔑",  audio: "assets/words/yeolsoe.m4a", img: "assets/words/img/yeolsoe.png" },
+  { word: "안경",  art: "👓",  audio: "assets/words/angyeong.m4a", img: "assets/words/img/angyeong.png" },
 ];
 
 // 공용 문구(모든 단어에 함께 쓰이는 말). audio가 없으면 자동 음성으로 대체된다.
