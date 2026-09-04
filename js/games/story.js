@@ -410,6 +410,34 @@ function togglePausedOverlay(show) {
   if (ico) ico.textContent = show ? "▶" : "⏸";
 }
 
+// 장면 그림 보여주기: scene.img(그림 파일)가 있으면 그림, 없으면 이모지(scene.art).
+// 그림이 없는 이야기는 예전 그대로 이모지가 나온다.
+function showArt(artEl, sc) {
+  if (!sc.img) {
+    artEl.classList.remove("has-img");
+    artEl.textContent = sc.art || "";
+    return;
+  }
+  artEl.classList.add("has-img");
+  artEl.innerHTML = "";
+  const im = document.createElement("img");
+  im.alt = "";
+  im.decoding = "async";
+  // 그림 파일을 못 불러오면(오타·업로드 누락 등) 조용히 이모지로 되돌린다
+  im.addEventListener("error", () => {
+    artEl.classList.remove("has-img");
+    artEl.textContent = sc.art || "";
+  });
+  im.src = sc.img;
+  artEl.appendChild(im);
+}
+
+// 다음 장면 그림을 미리 받아둔다 (넘길 때 그림이 잠깐 비는 것 방지)
+function preloadNextArt(i) {
+  const nx = story && story.scenes[i + 1];
+  if (nx && nx.img) new Image().src = nx.img;
+}
+
 async function playScene(i) {
   if (!running || !story || !stageEl) return;
   if (i >= story.scenes.length) {
@@ -426,11 +454,12 @@ async function playScene(i) {
   artEl.classList.remove("scene-in");
   textEl.classList.remove("scene-in");
   void artEl.offsetWidth; // 리플로우로 등장 애니메이션 재시작
-  artEl.textContent = sc.art;
+  showArt(artEl, sc);
   textEl.textContent = sc.text;
   artEl.classList.add("scene-in");
   textEl.classList.add("scene-in");
   updateDots(i);
+  preloadNextArt(i);
   syncMediaState();
   // 첫 장면에선 '이전' 화살표 흐리게(비활성)
   const prevBtn = stageEl.querySelector(".story-prev");
