@@ -77,10 +77,10 @@
 | `js/speech.js` | 자동 음성(TTS) 엔진 — 글을 브라우저 내장 음성으로 읽어줌 |
 | `js/games/mirror.js` | 🪞 매직 거울 (완성된 놀이) |
 | `js/games/story.js` | 🌙 잠자리 동화 (완성) — 녹음/자동음성으로 동화 읽어주기 |
-| `js/games/word.js` + `js/words.js` | 💬 낱말놀이 (완성) — 그림 2개 중 고르기 + 따라 말하기 |
+| `js/games/word.js` + `js/words.js` | 💬 낱말놀이 (완성) — 그림 2개 중 고르기 + 따라 말하기. 동물 20 + 우리 집 물건 20 = 40개, 엄마 목소리 녹음 + 실사 사진 |
 | `js/games/motion.js` | 움직임 마법 (준비 중) |
 | `js/games/keypad.js` | 키패드 놀이 (준비 중) |
-| `assets/` | 음원 파일(`call-music.mp3`), 동화 녹음(`stories/`), 낱말 녹음(`words/`) 등 |
+| `assets/` | 음원 파일(`call-music.mp3`), 동화 녹음(`stories/`), 낱말 녹음(`words/`) + 낱말 사진(`words/img/`) 등 |
 
 ## 🔑 설정 / 환경변수
 
