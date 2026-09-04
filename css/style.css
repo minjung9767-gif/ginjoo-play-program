@@ -878,6 +878,17 @@ html, body {
   line-height: 1.15;
   filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.45));
 }
+/* 장면 그림(파일)이 있을 때 — 이모지 대신 그림을 정사각형으로 크게 */
+.story-art.has-img { font-size: 0; line-height: 0; filter: none; }
+.story-art.has-img img {
+  display: block;
+  width: min(50vh, 64vw);
+  max-width: 520px;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: clamp(14px, 2.4vmin, 26px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
 .story-text {
   max-width: min(92vw, 760px);
   text-align: center;
