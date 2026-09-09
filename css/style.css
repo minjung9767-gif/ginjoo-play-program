@@ -834,14 +834,12 @@ html, body {
 /* 📖 책장 버튼: 오른쪽 홈/음소거와 동일한 동그란 아이콘 버튼(.ctrl-btn)을 재사용.
    위치만 story-controls(왼쪽 위)가 잡아준다. */
 
-/* 좌우 이전/다음 화살표 (가장자리 세로 중앙) */
+/* 이전/다음 화살표 (그림을 크게 쓰려고 화면 아래 진행 점 양옆에 둔다) */
 .story-nav {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
   z-index: 11;
-  width: clamp(56px, 10vmin, 88px);
-  height: clamp(56px, 10vmin, 88px);
+  flex: none;
+  width: clamp(48px, 8vmin, 72px);
+  height: clamp(48px, 8vmin, 72px);
   border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, 0.28);
   background: rgba(255, 255, 255, 0.12);
@@ -856,9 +854,14 @@ html, body {
   -webkit-backdrop-filter: blur(4px);
   transition: transform 0.1s ease, background 0.1s ease, opacity 0.2s ease;
 }
-.story-prev { left: clamp(10px, 2.5vw, 34px); }
-.story-next { right: clamp(10px, 2.5vw, 34px); }
-.story-nav:active { transform: translateY(-50%) scale(0.9); background: rgba(255, 255, 255, 0.24); }
+.story-nav:active { transform: scale(0.9); background: rgba(255, 255, 255, 0.24); }
+/* 화살표 + 진행 점을 담는 아래 줄 */
+.story-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(12px, 3vw, 28px);
+}
 .story-nav:disabled { opacity: 0.25; pointer-events: none; }
 
 /* 읽기 화면 */
@@ -869,8 +872,8 @@ html, body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: clamp(14px, 3.5vh, 36px);
-  padding: 9vh 6vw 7vh;
+  gap: clamp(10px, 2.4vh, 24px);
+  padding: 6vh 3vw 10vh;
   cursor: pointer;
 }
 .story-art {
@@ -882,8 +885,8 @@ html, body {
 .story-art.has-img { font-size: 0; line-height: 0; filter: none; }
 .story-art.has-img img {
   display: block;
-  width: min(50vh, 64vw);
-  max-width: 520px;
+  width: min(60vh, 94vw);
+  max-width: 820px;
   aspect-ratio: 1 / 1;
   object-fit: cover;
   border-radius: clamp(14px, 2.4vmin, 26px);
@@ -892,8 +895,8 @@ html, body {
 .story-text {
   max-width: min(92vw, 760px);
   text-align: center;
-  font-size: clamp(1.15rem, 3.6vmin, 2.1rem);
-  line-height: 1.75;
+  font-size: clamp(1.1rem, 3.3vmin, 1.9rem);
+  line-height: 1.6;
   color: #e7e2f5;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
   word-break: keep-all;
@@ -959,7 +962,7 @@ html, body {
 /* 처음에 잠깐 보여주는 안내 문구 */
 .story-hint {
   position: absolute;
-  bottom: 3.5vh;
+  bottom: 1.6vh;
   left: 50%;
   transform: translateX(-50%);
   padding: 8px 18px;
@@ -1010,17 +1013,15 @@ html, body {
   .story-random-btn { padding: clamp(8px, 1.6vh, 14px) clamp(14px, 3vmin, 28px); }
   .story-grid { grid-template-columns: repeat(2, 1fr); width: 94vw; gap: clamp(8px, 1.6vh, 16px); }
   .story-card-emoji { font-size: clamp(2rem, 7vmin, 4rem); }
-  /* 좌우 화살표와 글이 겹치지 않게: 글 영역을 화살표 안쪽으로 좁힘 */
-  .story-stage { padding: 10vh 16vw 8vh; gap: 2.2vh; }
+  /* 화살표가 아래로 내려갔으므로 좌우 여백을 줄여 그림을 최대한 넓게 */
+  .story-stage { padding: 8vh 3vw 7vh; gap: 1.8vh; }
   .story-text { max-width: 100%; font-size: clamp(1.05rem, 4.6vmin, 1.5rem); }
-  /* 화살표도 살짝 작게, 가장자리에 더 붙여 겹침 여백 확보 */
+  /* 폰에서는 화살표를 손가락으로 누르기 좋은 크기로 */
   .story-nav {
-    width: clamp(44px, 12vw, 58px);
-    height: clamp(44px, 12vw, 58px);
+    width: clamp(46px, 13vw, 60px);
+    height: clamp(46px, 13vw, 60px);
     font-size: clamp(1.3rem, 5.5vw, 1.9rem);
   }
-  .story-prev { left: clamp(4px, 1.5vw, 12px); }
-  .story-next { right: clamp(4px, 1.5vw, 12px); }
   /* 폰에서도 버튼 글자(책 고르기)는 보이게 유지, 크기만 살짝 줄임 */
   .story-ctrl { height: clamp(50px, 13vw, 74px); padding: 0 clamp(12px, 3.5vw, 20px); }
   .story-ctrl .ctrl-ico { font-size: clamp(1.3rem, 5.6vw, 2rem); }

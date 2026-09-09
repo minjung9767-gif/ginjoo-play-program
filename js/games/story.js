@@ -259,11 +259,15 @@ function beginStory(st) {
     "</div>" +
     // 🎲 랜덤 재생 중 표시: 버튼이 아니라 '상태 라벨'이므로 맨 위 가운데에 은은하게
     (randomMode ? '<div class="story-random-label">🎲 랜덤 재생 중</div>' : "") +
-    '<button class="story-nav story-prev" aria-label="이전 장면">❮</button>' +
-    '<button class="story-nav story-next" aria-label="다음 장면">❯</button>' +
     '<div class="story-art"></div>' +
     '<p class="story-text"></p>' +
-    '<div class="story-dots"></div>' +
+    // 아래 줄에 [이전 화살표] [진행 점] [다음 화살표]를 한 줄로 모아,
+    // 그림이 화면을 최대한 넓게 쓰도록 좌우를 비워 준다.
+    '<div class="story-bottom">' +
+    '  <button class="story-nav story-prev" aria-label="이전 장면">❮</button>' +
+    '  <div class="story-dots"></div>' +
+    '  <button class="story-nav story-next" aria-label="다음 장면">❯</button>' +
+    "</div>" +
     '<div class="story-paused-overlay hidden">' +
     '  <div class="sp-moon">🌙</div>' +
     '  <div class="sp-text">잠깐 쉬는 중이에요</div>' +
