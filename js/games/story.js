@@ -15,6 +15,7 @@ import {
   ttsSupported,
 } from "../speech.js";
 import { isMuted } from "../audio.js";
+import { isNightMode } from "../night.js";
 
 // 녹음 목소리별 재생 음량 (엄마=100% 기준, 아빠 녹음이 조금 커서 낮춰 균형 맞춤)
 const VOICE_VOLUME = { 아빠: 0.75 };
@@ -416,8 +417,10 @@ function togglePausedOverlay(show) {
 
 // 장면 그림 보여주기: scene.img(그림 파일)가 있으면 그림, 없으면 이모지(scene.art).
 // 그림이 없는 이야기는 예전 그대로 이모지가 나온다.
+// 밤 모드(밤 9시~새벽 6시, 손으로 바꾼 것 포함)에는 그림이 있어도 이모지를 보여준다.
+// 장면마다 새로 확인하므로, 보다가 밤 9시가 넘으면 다음 장면부터 이모지로 바뀐다.
 function showArt(artEl, sc) {
-  if (!sc.img) {
+  if (!sc.img || isNightMode()) {
     artEl.classList.remove("has-img");
     artEl.textContent = sc.art || "";
     return;
@@ -439,7 +442,7 @@ function showArt(artEl, sc) {
 // 다음 장면 그림을 미리 받아둔다 (넘길 때 그림이 잠깐 비는 것 방지)
 function preloadNextArt(i) {
   const nx = story && story.scenes[i + 1];
-  if (nx && nx.img) new Image().src = nx.img;
+  if (nx && nx.img && !isNightMode()) new Image().src = nx.img;
 }
 
 async function playScene(i) {
