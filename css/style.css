@@ -880,7 +880,8 @@ html, body {
   --st-lines: 3;
   --st-nav: clamp(48px, 8vmin, 72px);
   --st-text-h: calc(var(--st-lines) * var(--st-line) * var(--st-font));
-  --st-img: min(94vw, 820px, calc(100vh - var(--st-pad-top) - var(--st-pad-bottom) - 2 * var(--st-gap) - var(--st-text-h) - var(--st-nav)));
+  --st-bottom-row: var(--st-nav); /* 그림 아래 화살표 줄 높이 (노트북에선 화살표가 양옆으로 가서 진행 점만 남음) */
+  --st-img: min(94vw, 820px, calc(100vh - var(--st-pad-top) - var(--st-pad-bottom) - 2 * var(--st-gap) - var(--st-text-h) - var(--st-bottom-row)));
   position: absolute;
   inset: 0;
   display: flex;
@@ -1026,6 +1027,25 @@ html, body {
   transition: transform 0.1s ease;
 }
 .story-again-btn:active { transform: scale(0.96); }
+
+/* 💻 노트북(넓은 가로 화면): 그림은 가운데 그대로 두고 더 크게.
+   - ❮ ❯ 화살표를 그림 아래가 아니라 화면 양옆(세로 가운데)으로 옮긴다 → 아래 줄엔 진행 점만 남음.
+   - 글을 옆으로 넓게 펼쳐 두 줄 자리만 잡는다(그림 있는 동화 글은 노트북에서 모두 두 줄 안에 들어감).
+   - 이렇게 비는 세로 공간만큼 그림(--st-img)이 커진다. 폰·태블릿은 영향 없음
+     (가로로 충분히 넓은 화면만 — 덜 넓으면 글이 세 줄로 넘쳐 그림이 흔들려서 기존 배치를 쓴다). */
+@media (orientation: landscape) and (min-width: 1000px) and (min-aspect-ratio: 3/2) {
+  .story-stage {
+    --st-lines: 2;
+    --st-pad-bottom: max(7vh, 58px); /* 맨 아래 안내 문구 바로 위까지 */
+    --st-bottom-row: 10px;        /* 진행 점 한 줄 */
+    --st-nav: clamp(56px, 9vmin, 84px);
+  }
+  .story-text { max-width: min(84vw, 1400px); }
+  .story-nav { position: absolute; top: 50%; transform: translateY(-50%); }
+  .story-nav:active { transform: translateY(-50%) scale(0.9); }
+  .story-prev { left: 4vw; }
+  .story-next { right: 4vw; }
+}
 
 /* 폰 세로: 카드 세로 배치 여유 */
 @media (orientation: portrait) and (max-width: 600px) {
