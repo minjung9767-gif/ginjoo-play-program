@@ -191,6 +191,16 @@ export function playPeekaboo() {
   notes.forEach((f, i) => playBell(f, now + i * 0.09, 0.22));
 }
 
+// 🔢 숫자 놀이: 먹이를 하나 줄 때마다 한 음씩 올라가는 소리 (도→미→솔→도↑…)
+// → 귀로도 "숫자가 커진다"는 걸 느끼게
+const COUNT_TONES = [523.25, 659.25, 783.99, 1046.5, 1174.66, 1318.51];
+export function playCountNote(n) {
+  if (!ctx || muted) return;
+  wake();
+  const f = COUNT_TONES[Math.max(0, Math.min(COUNT_TONES.length - 1, n - 1))];
+  playBell(f, ctx.currentTime, 0.24);
+}
+
 // 키패드 버튼 누름 소리 (숫자마다 다른 음, 경쾌한 삑)
 const KEY_TONES = [330, 392, 440, 494, 523, 587, 659, 698, 784, 880];
 export function playKeyBeep(n) {
