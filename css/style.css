@@ -1370,3 +1370,217 @@ html, body {
   }
   .wc-emoji { font-size: clamp(4.2rem, 30vw, 10rem); }
 }
+
+/* ===== 🔢 숫자 놀이 (동물 친구 밥 주기) ===== */
+#game.num-mode {
+  background:
+    radial-gradient(140% 70% at 50% -10%, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 45%),
+    linear-gradient(165deg, #fff1c9 0%, #ffe3c2 35%, #d9f3dc 70%, #c9ecf7 100%);
+}
+.num-wrap {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(8px, 2vh, 22px);
+  overflow: hidden;
+  padding: clamp(20px, 4vh, 44px) 4vmin clamp(20px, 5vh, 50px);
+}
+
+/* 말풍선: "🦴🦴 뼈다귀 두 개 주세요!" */
+.num-bubble {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  max-width: 80%;
+  padding: 0.3em 0.9em;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.85);
+  box-shadow: 0 8px 22px rgba(160,110,40,0.18);
+  font-family: "Jua", "Apple SD Gothic Neo", sans-serif;
+  font-size: clamp(1.6rem, 5.4vmin, 3.2rem);
+  color: #8a4b12;
+  word-break: keep-all;
+  text-align: center;
+}
+.num-bubble:empty { visibility: hidden; }
+.num-bubble::after {             /* 말풍선 꼬리 (아래 동물 쪽) */
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -14px;
+  margin-left: -12px;
+  border: 12px solid transparent;
+  border-top-color: rgba(255,255,255,0.85);
+  border-bottom: 0;
+}
+.nb-icons { letter-spacing: 0.08em; white-space: nowrap; }
+.num-bubble.pop-in { animation: npPopIn 0.4s ease; }
+
+/* 동물 (크게) */
+.num-animal {
+  position: relative;
+  z-index: 1;
+  width: clamp(180px, 40vh, 420px);
+  height: clamp(180px, 40vh, 420px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.na-art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: clamp(7rem, 30vh, 17rem);
+  line-height: 1;
+  filter: drop-shadow(0 8px 14px rgba(0,0,0,0.16));
+}
+.na-art.has-img { font-size: 0; }
+.na-art img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  -webkit-user-drag: none;
+  user-select: none;
+  pointer-events: none;
+}
+.num-animal.enter { animation: npEnter 0.55s cubic-bezier(.3,1.4,.6,1); }
+.num-animal.chomp .na-art { animation: npChomp 0.32s ease; }
+.num-animal.happy .na-art { animation: npHappy 0.6s ease 0.3s 2; }
+
+/* 몇 개 줬는지 동그라미 (하나씩 채워짐) */
+.num-pips {
+  display: flex;
+  gap: clamp(10px, 2.4vmin, 22px);
+  min-height: clamp(26px, 5.5vmin, 46px);
+  align-items: center;
+}
+.np-pip {
+  width: clamp(26px, 5.5vmin, 46px);
+  height: clamp(26px, 5.5vmin, 46px);
+  border-radius: 50%;
+  border: 4px solid rgba(255,160,60,0.75);
+  background: rgba(255,255,255,0.6);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.np-pip.on { background: #ffa53c; transform: scale(1.12); }
+.np-pip.extra {
+  border: none;
+  background: none;
+  font-size: clamp(1.4rem, 5vmin, 2.6rem);
+  line-height: 1;
+  width: auto;
+  height: auto;
+  animation: npPopIn 0.35s ease;
+}
+
+/* 먹이 (누르는 곳, 큼직하게) */
+.num-foods {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  gap: clamp(14px, 4vmin, 48px);
+  justify-content: center;
+  flex-wrap: nowrap;
+}
+.num-food {
+  width: clamp(88px, 19vmin, 170px);
+  height: clamp(88px, 19vmin, 170px);
+  border: 1px solid rgba(255,255,255,0.7);
+  border-radius: 32px;
+  background: linear-gradient(160deg, rgba(255,255,255,0.75), rgba(255,255,255,0.4));
+  box-shadow: 0 10px 24px rgba(160,110,40,0.2), inset 0 1px 0 rgba(255,255,255,0.8);
+  font-size: clamp(3.4rem, 12vmin, 7rem);
+  line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+  animation: npPopIn 0.4s ease both;
+}
+.num-food:active:not(:disabled) { transform: scale(0.94); }
+.num-food.eaten {                /* 먹은 자리는 비워두기만 (옆 먹이가 움직이지 않게) */
+  pointer-events: none;
+  background: none;
+  border-color: transparent;
+  box-shadow: none;
+}
+.num-food.nudge { animation: npNudge 0.9s ease; }
+
+/* 한 판 끝: 다 같이 춤추기 */
+.num-party {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4vh;
+  pointer-events: none;
+  overflow: hidden;
+}
+.num-party.hidden { display: none; }
+.np-cheer {
+  font-family: "Jua", sans-serif;
+  font-size: clamp(2.6rem, 10vmin, 5.6rem);
+  color: #ff8fab;
+  text-shadow: 0 3px 0 #fff, 0 6px 14px rgba(255,120,150,0.35);
+  animation: npPopIn 0.5s ease;
+}
+.np-dancers {
+  display: flex;
+  gap: 2vmin;
+  justify-content: center;
+  flex-wrap: wrap;
+  max-width: 96%;
+}
+.np-dancer {
+  width: clamp(90px, 17vmin, 200px);
+  height: clamp(90px, 17vmin, 200px);
+  font-size: clamp(4rem, 13vmin, 9rem);
+  animation: npDance 0.7s ease-in-out infinite alternate;
+}
+
+@keyframes npPopIn {
+  0% { transform: scale(0.5); opacity: 0; }
+  70% { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes npEnter {
+  0% { transform: translateX(60vw) scale(0.8); opacity: 0; }
+  100% { transform: translateX(0) scale(1); opacity: 1; }
+}
+@keyframes npChomp {
+  0%, 100% { transform: scale(1); }
+  40% { transform: scale(1.1, 0.92); }
+  70% { transform: scale(0.96, 1.05); }
+}
+@keyframes npHappy {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  30% { transform: translateY(-8%) rotate(-5deg); }
+  60% { transform: translateY(0) rotate(5deg); }
+}
+@keyframes npNudge {
+  0%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(-12deg) scale(1.06); }
+  45% { transform: rotate(10deg) scale(1.06); }
+  70% { transform: rotate(-6deg); }
+}
+@keyframes npDance {
+  0% { transform: translateY(0) rotate(-8deg); }
+  100% { transform: translateY(-14%) rotate(8deg); }
+}
+
+/* 폰 세로: 먹이를 두 줄 없이 화면 폭에 맞게 */
+@media (orientation: portrait) and (max-width: 600px) {
+  .num-bubble { font-size: clamp(1.3rem, 6vw, 2.2rem); max-width: 92%; }
+  .num-animal { width: clamp(160px, 66vw, 340px); height: clamp(160px, 66vw, 340px); }
+  .num-foods { gap: 3vw; }
+  .num-food { width: 21vw; height: 21vw; border-radius: 22px; font-size: 12vw; }
+}

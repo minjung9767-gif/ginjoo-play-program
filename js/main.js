@@ -5,6 +5,7 @@ import { startMotion, stopMotion } from "./games/motion.js";
 import { startKeypad, stopKeypad } from "./games/keypad.js";
 import { startStory, stopStory } from "./games/story.js";
 import { startWord, stopWord } from "./games/word.js";
+import { startNumber, stopNumber } from "./games/number.js";
 import { resumeAudio, stopCallMusic, toggleMute, isMuted } from "./audio.js";
 import { isNightMode, setNightMode, timeLabel, NIGHT_GAMES } from "./night.js";
 
@@ -54,6 +55,13 @@ const GAMES = {
     needsCamera: false,
     loading: "",
     error: "앗, 낱말놀이를 불러오지 못했어요. 🥲",
+  },
+  number: {
+    start: startNumber,
+    stop: stopNumber,
+    needsCamera: false,
+    loading: "",
+    error: "앗, 숫자 놀이를 불러오지 못했어요. 🥲",
   },
 };
 
