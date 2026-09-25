@@ -1,12 +1,12 @@
 // 🔢 숫자 놀이: "동물 친구 밥 주기" (카메라 불필요)
 // - 동물이 "뼈다귀 두 개 주세요~" 하고 부탁하면, 아이가 먹이를 톡톡 눌러 입에 쏙 넣어준다.
 // - 하나 줄 때마다 엄마 목소리로 "하나!", "둘!" 하고 세어 주고, 소리도 한 음씩 올라간다.
-// - 틀린 게 없다: 덜 주면 "하나 더 줄래?", 더 주면 "아이고~ 배 아야!" 하고 배를 잡고 흔들흔들(웃긴 장면).
+// - 틀린 게 없다: 덜 주면 "하나 더 줄래?", 더 주면 세지 않고 바로 "아이고~ 배 아야!" 하며 배를 잡고 흔들흔들(웃긴 장면).
 // - 동물 다섯 마리를 먹이면 다 같이 춤추며 마무리하고, 새 판이 이어진다.
 // - 녹음 파일(assets/numbers/…)이 있으면 그 목소리로, 없으면 자동 음성(TTS)으로 대체된다.
 import { ANIMALS, ANIMALS_PER_ROUND, MAX_COUNT, COUNT_WORDS, ASK_WORDS, NUM_PHRASES } from "../numbers.js";
 import { speakText, stopSpeech, ttsSupported } from "../speech.js";
-import { isMuted, playCorrect, playCountNote, playPeekaboo, resumeAudio } from "../audio.js";
+import { isMuted, playCorrect, playCountNote, playPeekaboo, playPop, resumeAudio } from "../audio.js";
 
 const IDLE_MS = 6000;       // 이만큼 가만히 있으면 먹이를 살랑 흔들어 "눌러봐~" 하고 알려줌
 const MAX_IDLE_TALKS = 2;   // 동물 한 마리당 다시 말해 주는 횟수 (너무 재촉하지 않게)
@@ -255,7 +255,8 @@ function onFeed(btn) {
   const n = fed;
   delay(380).then(() => {
     if (!running || t !== roundId) return;
-    playCountNote(n);
+    if (n <= target) playCountNote(n); // 세는 동안만 한 음씩 올라감
+    else playPop();                    // 더 줬을 땐 "퐁" (세지 않음)
     replay(animalEl, "chomp");
     fillPip(n);
   });
@@ -292,7 +293,7 @@ function onFeed(btn) {
         animalEl.appendChild(sweat);
       }
     });
-    talk = say([count, NUM_PHRASES.ouch]);
+    talk = say([NUM_PHRASES.ouch]); // 세지 않고 누르자마자 바로 "배 아야"
   }
 
   // 말이 끝나고 잠깐 쉬었다가 다음 동물로 (그 사이 또 주면 다시 기다림)
