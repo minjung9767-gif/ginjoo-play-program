@@ -1454,6 +1454,16 @@ html, body {
 .num-animal.enter { animation: npEnter 0.55s cubic-bezier(.3,1.4,.6,1); }
 .num-animal.chomp .na-art { animation: npChomp 0.32s ease; }
 .num-animal.happy .na-art { animation: npHappy 0.6s ease 0.3s 2; }
+/* 더 줬을 때: 배 잡고 흔들흔들 + 💦 */
+.num-animal.ouch .na-art { animation: npOuch 0.5s ease-in-out 0s 3; }
+.na-ouch {
+  position: absolute;
+  top: 6%;
+  right: 4%;
+  font-size: clamp(2.4rem, 9vmin, 5rem);
+  animation: npPopIn 0.35s ease, npSweat 1.2s ease-in-out 0.35s infinite alternate;
+  pointer-events: none;
+}
 
 /* 몇 개 줬는지 동그라미 (하나씩 채워짐) */
 .num-pips {
@@ -1565,6 +1575,15 @@ html, body {
   0%, 100% { transform: translateY(0) rotate(0deg); }
   30% { transform: translateY(-8%) rotate(-5deg); }
   60% { transform: translateY(0) rotate(5deg); }
+}
+@keyframes npOuch {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  25% { transform: rotate(-9deg) scale(1.04, 0.95); }
+  75% { transform: rotate(9deg) scale(1.04, 0.95); }
+}
+@keyframes npSweat {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(12%); }
 }
 @keyframes npNudge {
   0%, 100% { transform: rotate(0deg); }

@@ -1,7 +1,7 @@
 // 🔢 숫자 놀이: "동물 친구 밥 주기" (카메라 불필요)
 // - 동물이 "뼈다귀 두 개 주세요~" 하고 부탁하면, 아이가 먹이를 톡톡 눌러 입에 쏙 넣어준다.
 // - 하나 줄 때마다 엄마 목소리로 "하나!", "둘!" 하고 세어 주고, 소리도 한 음씩 올라간다.
-// - 틀린 게 없다: 덜 주면 "하나 더 줄래?", 더 주면 "우와, 많이 먹었다!" 하고 웃는다.
+// - 틀린 게 없다: 덜 주면 "하나 더 줄래?", 더 주면 "아이고~ 배 아야!" 하고 배를 잡고 흔들흔들(웃긴 장면).
 // - 동물 다섯 마리를 먹이면 다 같이 춤추며 마무리하고, 새 판이 이어진다.
 // - 녹음 파일(assets/numbers/…)이 있으면 그 목소리로, 없으면 자동 음성(TTS)으로 대체된다.
 import { ANIMALS, ANIMALS_PER_ROUND, MAX_COUNT, COUNT_WORDS, ASK_WORDS, NUM_PHRASES } from "../numbers.js";
@@ -279,8 +279,20 @@ function onFeed(btn) {
     });
     talk = say([count, NUM_PHRASES.thanks]);
   } else {
-    // 더 줬어요 → 야단 없이 즐겁게
-    talk = say([count, NUM_PHRASES.lots]);
+    // 더 줬어요 → "아이고~ 배 아야!" 하고 배를 잡고 흔들흔들 (야단 아니고 웃긴 장면)
+    delay(380).then(() => {
+      if (!running || t !== roundId) return;
+      animalEl.classList.remove("happy");
+      replay(animalEl, "ouch");
+      if (!animalEl.querySelector(".na-ouch")) {
+        const sweat = document.createElement("span");
+        sweat.className = "na-ouch";
+        sweat.setAttribute("aria-hidden", "true");
+        sweat.textContent = "💦";
+        animalEl.appendChild(sweat);
+      }
+    });
+    talk = say([count, NUM_PHRASES.ouch]);
   }
 
   // 말이 끝나고 잠깐 쉬었다가 다음 동물로 (그 사이 또 주면 다시 기다림)
@@ -310,7 +322,7 @@ function flyToMouth(btn) {
   );
 }
 
-// 하나 줄 때마다 동그라미가 하나씩 채워지고, 더 주면 별이 붙는다
+// 하나 줄 때마다 동그라미가 하나씩 채워지고, 더 주면 💦가 붙는다
 function fillPip(n) {
   if (!pipsEl) return;
   if (n <= target) {
@@ -319,7 +331,7 @@ function fillPip(n) {
   } else {
     const s = document.createElement("span");
     s.className = "np-pip extra on";
-    s.textContent = "⭐";
+    s.textContent = "💦";
     pipsEl.appendChild(s);
   }
 }
