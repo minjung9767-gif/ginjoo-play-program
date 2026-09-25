@@ -59,6 +59,6 @@ export const ASK_WORDS = [
 export const NUM_PHRASES = {
   thanks: { audio: "assets/numbers/_thanks.m4a", text: "냠냠, 고마워!" },  // 딱 맞게 다 줬을 때
   more:   { audio: "assets/numbers/_more.m4a",   text: "하나 더 줄래?" },   // 덜 주고 가만히 있을 때
-  lots:   { audio: "assets/numbers/_lots.m4a",   text: "우와, 많이 먹었다!" }, // 더 줬을 때
+  ouch:   { audio: "assets/numbers/_ouch.m4a",   text: "아이고, 배 아야!" },  // 더 줬을 때 (배 잡고 흔들흔들)
   finish: { audio: "assets/numbers/_finish.m4a", text: "다 먹었다! 긴주 최고!" }, // 한 판 끝
 };
