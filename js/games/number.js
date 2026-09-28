@@ -414,6 +414,8 @@ async function party() {
    (낱말놀이와 같은 방식. 자동 음성이 '끝' 신호를 안 줘도 멈추지 않게 최대 대기 시간을 둔다) */
 async function say(segList) {
   const id = ++sayId;
+  // 이어서 나올 녹음을 미리 불러 둔다 → "도토리"와 "세 개 주세요" 사이가 뜨지 않게
+  segList.forEach((seg) => seg && seg.audio && preloadRecorded(seg.audio));
   for (const seg of segList) {
     if (!seg) continue;
     if (!running || id !== sayId) return false;
@@ -473,9 +475,21 @@ function interrupt() {
   stopRecorded();
 }
 
+// 미리 불러 둔 녹음 (주소 → Audio). 한 번 쓰면 빼서 다음엔 새로 불러 둔다.
+const preloaded = new Map();
+
+function preloadRecorded(src) {
+  if (preloaded.has(src)) return;
+  const a = new Audio(src);
+  a.preload = "auto";
+  a.load();
+  preloaded.set(src, a);
+}
+
 function playRecorded(src) {
   return new Promise((resolve) => {
-    audioEl = new Audio(src);
+    audioEl = preloaded.get(src) || new Audio(src);
+    preloaded.delete(src);
     audioEl.muted = isMuted();
     audioEl.onended = () => {
       audioEl = null;
