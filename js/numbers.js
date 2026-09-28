@@ -16,7 +16,7 @@ export const ANIMALS = [
   },
   {
     name: "고양이", art: "🐈", img: "assets/words/img/goyangi.png",
-    cry:  { audio: "assets/numbers/cry-goyangi.m4a", text: "야옹!" },
+    cry:  { audio: "assets/numbers/cry-goyangi.m4a", text: "냐옹!" },
     food: { art: "🐟", audio: "assets/numbers/food-saengseon.m4a", text: "생선" },
   },
   {
