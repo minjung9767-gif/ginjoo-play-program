@@ -24,7 +24,7 @@
 | 동물 | 울음 파일 | 내용 | 먹이 파일 | 내용 |
 |---|---|---|---|---|
 | 강아지 | `cry-gangaji.m4a` | "멍멍!" | `food-ppyeo.m4a` | "뼈다귀" |
-| 고양이 | `cry-goyangi.m4a` | "야옹!" | `food-saengseon.m4a` | "생선" |
+| 고양이 | `cry-goyangi.m4a` | "냐옹!" | `food-saengseon.m4a` | "생선" |
 | 토끼 | `cry-tokki.m4a` | "깡충깡충!" | `food-danggeun.m4a` | "당근" |
 | 원숭이 | `cry-wonsungi.m4a` | "우끼끼!" | `food-banana.m4a` | "바나나" |
 | 다람쥐 | `cry-daramjwi.m4a` | "쪼르르!" | `food-dotori.m4a` | "도토리" |
