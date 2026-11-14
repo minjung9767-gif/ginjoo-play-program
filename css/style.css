@@ -363,6 +363,9 @@ html, body {
 /* 🌙 잠자리 동화에서는 음소거 버튼을 숨긴다.
    (화면을 누르면 이야기가 멈추면서 소리도 같이 멈추므로 따로 필요 없음) */
 #game[data-game="story"] #muteBtn { display: none; }
+/* 📖 책을 읽는 중에는 오른쪽 위 홈 버튼도 숨기고, 그 자리에 책장(목록) 버튼이 온다(.story-controls).
+   책장(목록) 화면에서는 홈 버튼이 다시 보여서 집으로 돌아갈 수 있다. */
+#game.story-reading #homeBtn { display: none; }
 
 /* ===== 상태/로딩 오버레이 ===== */
 .status-overlay {
@@ -928,8 +931,8 @@ html, body {
 /* 읽기 화면 컨트롤 (왼쪽 위: 다른 이야기 / 멈춤) */
 .story-controls {
   position: absolute;
-  top: 14px;
-  left: 14px;
+  top: 12px;
+  right: 12px; /* 홈 버튼이 있던 자리(오른쪽 위). 왼쪽 위는 비워 둔다 */
   z-index: 12;
   display: flex;
   gap: 10px;
@@ -959,7 +962,7 @@ html, body {
 .story-ctrl .ctrl-cap { font-size: clamp(1.1rem, 3.2vmin, 1.6rem); text-shadow: 0 1px 3px rgba(0,0,0,0.4); }
 
 /* 📖 책장 버튼: 오른쪽 홈/음소거와 동일한 동그란 아이콘 버튼(.ctrl-btn)을 재사용.
-   위치만 story-controls(왼쪽 위)가 잡아준다. */
+   위치만 story-controls(오른쪽 위)가 잡아준다. */
 
 /* 이전/다음 화살표 (그림을 크게 쓰려고 화면 아래 진행 점 양옆에 둔다) */
 .story-nav {
