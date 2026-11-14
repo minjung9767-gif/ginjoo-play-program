@@ -75,7 +75,7 @@ export function stopStory() {
   stopRecorded();
   clearMediaSession();
   const gameEl = document.getElementById("game");
-  if (gameEl) gameEl.classList.remove("story-mode");
+  if (gameEl) gameEl.classList.remove("story-mode", "story-reading");
   if (wrapEl) {
     wrapEl.remove();
     wrapEl = null;
@@ -121,6 +121,7 @@ function renderPicker() {
   playlist = [];
   playIdx = 0;
   clearContent();
+  document.getElementById("game").classList.remove("story-reading"); // 책장에선 홈 버튼 다시 보임
 
   const box = document.createElement("div");
   box.className = "story-picker";
@@ -246,11 +247,13 @@ function beginStory(st) {
   paused = false;
   stalledNext = -1;
   clearContent();
+  // 📖 책 읽는 중 표시: 이때는 오른쪽 위 홈 버튼을 숨기고 그 자리에 책장 버튼을 둔다(css 참고)
+  document.getElementById("game").classList.add("story-reading");
 
   stageEl = document.createElement("div");
   stageEl.className = "story-stage";
   stageEl.innerHTML =
-    // 📚 책 고르기 = 왼쪽 위 (책 목록으로). 화면 터치로 멈추므로 중지/다음 버튼은 없앰.
+    // 📚 책 고르기 = 오른쪽 위 (책 목록으로). 왼쪽 위는 비워 둔다. 화면 터치로 멈추므로 중지/다음 버튼은 없앰.
     // (이야기가 끝나면 자동으로 다음 이야기가 이어져 재생된다)
     '<div class="story-controls">' +
     '  <button class="ctrl-btn story-back" aria-label="책장" title="책장">' +
